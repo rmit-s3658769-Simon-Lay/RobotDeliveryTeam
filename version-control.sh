@@ -16,7 +16,13 @@
 #		You would still need to
 #		git commands to push to the server
 #
+#		Execution:
+#		./version-control <location of private key>
+#
 #######################################################################
+
+
+
 
 ####### Parameters #########
 privatekey=$1
