@@ -1,0 +1,29 @@
+Hi
+
+To run the gazebo simulator via a sibling container you would need to follow
+the following steps:
+
+- download the ubuntu image fo 16.04
+- run the image with the following commands:
+  sudo docker run -v /var/run/docker.sock:/var/run/docker.sock -it xiro24/dockerdemo /bin/bash
+
+This wil enable the container you just fired up to also use docker. but instead of
+doing a docker inside a docker, it just uses a sibling container.
+
+The following method was mentioned in the article below:
+https://medium.com/@andreacolangelo/sibling-docker-container-2e664858f87a
+
+If you would like a demo of the product, you can download the
+already furbished ubuntu image with gazebo simulators already avaliable to use.
+under the path: /home/potato/DemoTurtle
+url of docker container:
+https://hub.docker.com/repository/docker/xiro24/dockerdemo
+
+
+These are based from the github:
+
+https://github.com/liam-j-simon/ftgrip
+https://github.com/kyaing-thiha/fetchbot
+
+
+
