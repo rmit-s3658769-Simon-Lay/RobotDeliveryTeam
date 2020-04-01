@@ -29,5 +29,6 @@ privatekey=$1
 location_in_server=//home/robodeliver/GithubFile
 
 # shh into the robodeliver server
+rm -rf ./GithubFile
 scp -r -i $privatekey robodeliver@131.170.250.237:$location_in_server .
 
