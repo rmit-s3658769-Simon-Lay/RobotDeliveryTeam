@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 #import argparse
+import time
 
 """ rospy is a pure Python client library for ROS. The rospy client API enables Python
 programmers to quickly interface with ROS Topics, Services, and Parameters. """
@@ -13,112 +14,6 @@ specification: https://wiki.ros.org/msg """
 from std_msgs.msg import (
     UInt16,
     )
-
-# # Limb
-# """ This is the main API for the robot's arms, and is instantiated by: """
-# from baxter_interface import Limb
-# right_arm = Limb("right")
-# left_arm = Limb("left")
-# """ Its main uses are:
-# 	* Quering the joint states
-# 	* Switching between control modes
-# 	* And sending Joint Commands (position, velocity, or torque) """
-
-# # Gripper
-# """ This is the main API for interacting with Baxter's grippers, and is instantiated
-# by: """
-# from baxter_interface import Gripper
-# right_gripper = Gripper('right')
-# left_gripper = Gripper('left')
-# """ Its main uses are:
-
-# 	* Sending open/close commands to the gripper
-# 	* Querying the state/properties of the gripper
-# 	* Reacting to grippers being plugged/unplugged
-# 	* Calibrating the gripper
-# 	* And controlling aspects of how the gripper acts (velocity, moving force,
-# 	* holding force, dead band, vacuum threshold, etc.) """
-
-# # Navigator
-# """ This is the main API for responding to interaction with Baxter's navigator
-# interfaces, and is instantiated by: """
-# from baxter_interface import Navigator
-# right_arm_navigator = Navigator('right')
-# left_arm_navigator = Navigator('left')
-# right_torso_navigator = Navigator('torso_right')
-# left_torso_navigator = Navigator('torso_left')
-# """ Its main uses are:
-# 	* Querying the state of the wheel
-# 	* Responding to wheel and button interactions
-# 	* And controlling the navigator lights """
-
-# # Robot Enable
-# """ This is the API responsible for enabling/disabling the robot, as well as
-# running version verification, and instantiated by: """
-# from baxter_interface import RobotEnable
-# baxter = RobotEnable()
-# """ Its main uses are:
-# 	* Performing Enable, Disable, Stop, Reset on the robot
-# 	* Getting the current robot state
-# 	* And verifying the version of the software """
-
-# # Camera
-# """ This is the main API for interacting with the cameras on the Baxter Research
-# Robot, and is instantiated by: """
-# from baxter_interface import CameraController
-# left_hand_camera = CameraController('left_hand_camera')
-# right_hand_camera = CameraController('right_hand_camera')
-# head_camera = CameraController('head_camera')
-# """ Its main uses are:
-# 	* Opening/closing cameras
-# 	* Updating camera resolution to another valid resolution mode
-# 		* Valid Modes:
-# 		* (1280, 800)
-# 		* (960, 600)
-# 		* (640, 400)
-# 		* (480, 300)
-# 		* (384, 240)
-# 		* (320, 200)
-# 	* Getting/Setting camera settings (fps, exposure, gain, white balance, etc.) """
-
-# # Analog IO
-# """ This is the catchall API for interacting with analog Input/Output interfaces in
-# the Baxter Research Robot, and is instantiated by: """
-# from baxter_interface import AnalogIO
-# # <component name> = AnalogIO(<component id>)
-# """ Available Analog Components:
-# 	* left_hand_range, right_hand_range
-# 	* left_itb_wheel, right_itb_wheel, torso_left_itb_wheel, torso_right_itb_wheel
-# 	* left_vacuum_sensor_analog, right_vacuum_sensor_analog
-# 	* torso_fan
-# Available options:
-# 	* _on_io_state: react to state changes
-# 	* state
-# 	* is_output: check to see if the component is capable of output
-# 	* set_output
-# For more information on the vacuum end-effector, see Vacuum Gripper Interface.  """
-
-# # Digital IO
-# """ This is the catchall API for interacting with digital Input/Output interfaces in
-# the Baxter Research Robot, and is instantiated by: """
-# from baxter_interface import DigitalIO
-# # <component name> = DigitalIO(<component id>)
-# """ A full list of available digital IO components is available here:
-# 	https://sdk.rethinkrobotics.com/wiki/API_Reference#Digital_IO
-# Available options:
-# 	* _on_io_state: react to state changes
-# 	* state
-# 	* is_output: check to see if the component is capable of output
-# 	* set_output """
-
-# # Head
-# """ This is the API for dealing with head motion, and is instantiated by: """
-# from baxter_interface import Head
-# # <component name> = Head()
-# """ Available commands:
-# 	* _on_head_state: respond to state changes
-#     	* pan, nodding, panning: state values
-#     	* set_pan, command_nod """
 
 class Pusher(object):
     def __init__(self):
@@ -194,20 +89,81 @@ class Pusher(object):
     def push(self):
         print("we are in Puther.push")
         self.setNeutral()
-        """ Execute the all important pushing sequence """
         rate = rospy.Rate(self.rate)
-	start = rospy.Time.now()
+        """ Execute the all important pushing sequence """
+        self.__retractLeftArm(rate, "forward")
+#        time.sleep(100)
+        self.__partiallyExtendLeftArm(rate, "forward")
+        time.sleep(100)
+#        while not rospy.is_shutdown():
 
-        while not rospy.is_shutdown():
-            self.publishingRate.publish(self.rate)
-            elapsed = rospy.Time.now() - start
-            print(type(elapsed))
-            print("just printed!")
-            newVelocity = time.Duration(0.005) * elapsed
-            self.leftArm.set_joint_velocities("left_s0", newVelocity)
-            rate.sleep()        # Sleep based on rate
-            print("we are in loop!")
-	""" self.leftJointNames
+
+    """ Joint/s should be within this range to be considered in position
+	This is basically the tolerance we are aiming for when moving joints
+	(also why doesn't python have constants or case statments >:(0)"""
+    JOINT_PLAY = 0.0005
+    LEFT_ARM_JOINTS = ["left_w2", "left_w1", "left_w0", "left_e1", "left_e0", "left_s1", "left_s0"]
+
+
+            # Retract with elbow facing up
+    def __retractLeftArm(self, rate, direction):
+        # Directions we can move in
+        DIRECTION_0 = "forward"
+        ARM = "left"            # Which Acorn Risc Machine are we using?
+        if(direction == DIRECTION_0):
+            print("retracting " + ARM + " arm to " + DIRECTION_0 + " position")
+            jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: 0.1, self.LEFT_ARM_JOINTS[2]: 0.0,
+                              self.LEFT_ARM_JOINTS[3]: 2.5, self.LEFT_ARM_JOINTS[4]: 0.0, self.LEFT_ARM_JOINTS[5]: -1.2,
+                              self.LEFT_ARM_JOINTS[6]: -0.8}
+            while True:
+    	        self.publishingRate.publish(self.rate) # Set publishing rate
+                # Pusher.push main movement sequence
+                self.leftArm.set_joint_positions(jointPositions)
+                rate.sleep()
+                nInPosition = 0 # Number of joints that are in position
+                for iter in range(0, len(self.LEFT_ARM_JOINTS)):
+                    if(self.leftArm.joint_angle(self.LEFT_ARM_JOINTS[iter]) >= (jointPositions[self.LEFT_ARM_JOINTS[iter]] - self.JOINT_PLAY) and
+                       self.leftArm.joint_angle(self.LEFT_ARM_JOINTS[iter]) <= (jointPositions[self.LEFT_ARM_JOINTS[iter]] + self.JOINT_PLAY)):
+                        nInPosition += 1
+                if(nInPosition == len(self.LEFT_ARM_JOINTS) -1):
+                    print(ARM + " arm retracted to " + DIRECTION_0 + " position")
+                    break
+        else:
+            print("Error in __retractLeftArm, pos = " + direction + ", but the only option/s currently implemented are " + DIRECTION_0)
+
+
+	    # Extend arm to roughly half it's length with it's elbow facing up
+    def __partiallyExtendLeftArm(self, rate, direction):
+                # Directions we can move in
+        DIRECTION_0 = "forward"
+        ARM = "left"            # Which Acorn Risc Machine are we using?
+        if(direction == DIRECTION_0):
+            print("partially extending " + ARM + " arm to " + DIRECTION_0 + " position")
+            jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: -0.9, self.LEFT_ARM_JOINTS[2]: 0.0,
+                              self.LEFT_ARM_JOINTS[3]: 1.7, self.LEFT_ARM_JOINTS[4]: 0.0, self.LEFT_ARM_JOINTS[5]: -0.8,
+                              self.LEFT_ARM_JOINTS[6]: -0.8}
+            while True:
+    	        self.publishingRate.publish(self.rate) # Set publishing rate
+                # Pusher.push main movement sequence
+                self.leftArm.set_joint_positions(jointPositions)
+                rate.sleep()
+                nInPosition = 0 # Number of joints that are in position
+                for iter in range(0, len(self.LEFT_ARM_JOINTS)):
+                    if(self.leftArm.joint_angle(self.LEFT_ARM_JOINTS[iter]) >= (jointPositions[self.LEFT_ARM_JOINTS[iter]] - self.JOINT_PLAY) and
+                       self.leftArm.joint_angle(self.LEFT_ARM_JOINTS[iter]) <= (jointPositions[self.LEFT_ARM_JOINTS[iter]] + self.JOINT_PLAY)):
+                        nInPosition += 1
+                if(nInPosition == len(self.LEFT_ARM_JOINTS) -1):
+                    print(ARM + " arm partially extended to " + DIRECTION_0 + " position")
+                    break
+        else:
+            print("Error in __partiallyExtendLeftArm, pos = ", direction, ", but the only option/s currently implemented are ", DIRECTION_0)
+
+            
+            
+            
+
+
+        """ self.leftJointNames
 		left_s0
 		left_s1
 		left_e0
@@ -216,9 +172,7 @@ class Pusher(object):
 		left_w1
 		left_w2 """
 
-            # self.leftArm.set_joint_velocities([(joint, 0.01*elapsed)
-            # for iter, joint in enumerate(self.leftJointNames)])
-
+                
 def main():
      # arg_format = argparse.RawDescriptionHelpFormatter
     # parser = argparse.ArgumentParser(formatter_class = arg_fmt,
