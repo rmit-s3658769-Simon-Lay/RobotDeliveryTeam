@@ -33,6 +33,8 @@ class Pusher(object):
         # this only happens if we are publishing faster then rospy can send messages.)
         self.leftArm = baxter_interface.limb.Limb("left")
         self.rightArm = baxter_interface.limb.Limb("right")
+        self.leftGripper = baxter_interface.gripper.Gripper("left")
+        self.rightGripper = baxter_interface.gripper.Gripper("left")
         self.leftJointNames = self.leftArm.joint_names()
         self.rightJointNames = self.rightArm.joint_names()
 
@@ -92,8 +94,11 @@ class Pusher(object):
         rate = rospy.Rate(self.rate)
         """ Execute the all important pushing sequence """
         self.__retractLeftArm(rate, "forward")
-#        time.sleep(100)
+        self.leftGripper.close() # For better button pressing abillities!
+        time.sleep(1)
         self.__partiallyExtendLeftArm(rate, "forward")
+        time.sleep(1)
+        self.__pushButtonWithLeftGripper(rate, "forward")
         time.sleep(100)
 #        while not rospy.is_shutdown():
 
@@ -159,20 +164,33 @@ class Pusher(object):
             print("Error in __partiallyExtendLeftArm, pos = ", direction, ", but the only option/s currently implemented are ", DIRECTION_0)
 
             
+	    # Moves arm and gripper in appropriate fashion for button pression (or beer bottle spilling.)
+    def __pushButtonWithLeftGripper(self, rate, direction):
+                # Directions we can move in
+        DIRECTION_0 = "forward"
+        ARM = "left"            # Which Acorn Risc Machine are we using?
+        if(direction == DIRECTION_0):
+            print("Attempting to push button using " + ARM + " arm and gripper in " + DIRECTION_0 + " position")
+            jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: -0.525, self.LEFT_ARM_JOINTS[2]: 0.0,
+                              self.LEFT_ARM_JOINTS[3]: 1.0, self.LEFT_ARM_JOINTS[4]: 0.0, self.LEFT_ARM_JOINTS[5]: -0.487,
+                              self.LEFT_ARM_JOINTS[6]: -0.8}
+            while True:
+    	        self.publishingRate.publish(self.rate) # Set publishing rate
+                # Pusher.push main movement sequence
+                self.leftArm.set_joint_positions(jointPositions)
+                rate.sleep()
+                nInPosition = 0 # Number of joints that are in position
+                for iter in range(0, len(self.LEFT_ARM_JOINTS)):
+                    if(self.leftArm.joint_angle(self.LEFT_ARM_JOINTS[iter]) >= (jointPositions[self.LEFT_ARM_JOINTS[iter]] - self.JOINT_PLAY) and
+                       self.leftArm.joint_angle(self.LEFT_ARM_JOINTS[iter]) <= (jointPositions[self.LEFT_ARM_JOINTS[iter]] + self.JOINT_PLAY)):
+                        nInPosition += 1
+                if(nInPosition == len(self.LEFT_ARM_JOINTS) -1):
+                    print("finished attempt to push button using " + ARM + " arm and gripper in " + DIRECTION_0 + " position")
+                    break
+        else:
+            print("Error in __pushButtonWithLeftGripper, pos = ", direction, ", but the only option/s currently implemented are ", DIRECTION_0)
+
             
-            
-
-
-        """ self.leftJointNames
-		left_s0
-		left_s1
-		left_e0
-		left_e1
-		left_w0
-		left_w1
-		left_w2 """
-
-                
 def main():
      # arg_format = argparse.RawDescriptionHelpFormatter
     # parser = argparse.ArgumentParser(formatter_class = arg_fmt,
