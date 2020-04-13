@@ -4,6 +4,11 @@ import rospy
 import actionlib
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
+DOOR_X = 0.25
+DOOR_Y = 5
+ORIENT_Z = 0.7
+ORIENT_W = 0.7
+
 def movebase_client():
 
     client = actionlib.SimpleActionClient('move_base',MoveBaseAction)
@@ -13,10 +18,10 @@ def movebase_client():
     goal = MoveBaseGoal()
     goal.target_pose.header.frame_id = "map"
     goal.target_pose.header.stamp = rospy.Time.now()
-    goal.target_pose.pose.position.x = 0.25
-    goal.target_pose.pose.position.y = 5
-    goal.target_pose.pose.orientation.z = 0.7
-    goal.target_pose.pose.orientation.w = 0.7
+    goal.target_pose.pose.position.x = DOOR_X
+    goal.target_pose.pose.position.y = DOOR_Y
+    goal.target_pose.pose.orientation.z = ORIENT_Z
+    goal.target_pose.pose.orientation.w = ORIENT_W
 
     client.send_goal(goal)
     rospy.loginfo("Waiting for response...")
