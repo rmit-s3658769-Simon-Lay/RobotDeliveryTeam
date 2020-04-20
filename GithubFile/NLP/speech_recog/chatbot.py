@@ -9,6 +9,28 @@ import nltk
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
 from pocketsphinx import LiveSpeech
+import speech_recognition as sr
+
+
+def extract_text_from_mv(name_source):
+    r = sr.Recognizer()
+    from_wav = sr.AudioFile(name_source)
+    input_from_speech=''
+    with from_wav as source:
+        audio = r.record(source)
+    try:
+        s =  r.recognize_google(audio)
+        return s
+    except Exception as e:
+        print("Exception: "+str(e))
+
+def inputs_controller():
+    input_from_speech = []
+    input_from_speech.append(extract_text_from_mv('source_data/sample_forward.wav'))
+    input_from_speech.append(extract_text_from_mv('source_data/sample_bye.wav'))
+    #input_from_speech = " ".join(input_from_speech)
+    #print(input_from_speech)
+    return input_from_speech
 
 nltk.download('popular', quiet=True) # for downloading packages
 # uncomment the following only the first time
@@ -18,7 +40,7 @@ nltk.download('popular', quiet=True) # for downloading packages
 with open('chatbot-corpus.txt','r') as fin:
     raw = fin.read().lower()
 
-#Tokenisation
+ #Tokenisation
 sent_tokens = nltk.sent_tokenize(raw)# converts to list of sentences 
 word_tokens = nltk.word_tokenize(raw)# converts to list of words
 
@@ -29,14 +51,6 @@ def LemTokens(tokens):
 remove_punct_dict = dict((ord(punct), None) for punct in string.punctuation)
 def LemNormalize(text):
     return LemTokens(nltk.word_tokenize(text.lower().translate(remove_punct_dict)))
-
-# Keyword Matching
-#Do greetings via wordnet
-#def Check_wordnet(word):
-#    for synonym in wordnet.synsets(word):
-#        for lemma in synonym.lemmas():
-            
-        
 
 def greeting(sentence):
     """If user's input is a greeting, return a greeting response"""
@@ -81,9 +95,6 @@ def baxter_commands(user_response):
                 print("execute the rospy command: "+run_cmd)
                 ##insert rospy command here
 
-
-
-
 # Generating response
 def Use_Corpus(user_response):
     robo_response=''
@@ -103,29 +114,55 @@ def Use_Corpus(user_response):
         return robo_response
 
 #implement script controls. e.g: rosie execute script move
-print("Rosie: If you want to exit, say Bye!")
-for phrase in LiveSpeech():
-    print('you said:')
-    print(phrase)
+def Enable_pocketsphinx():
+    print("Rosie: If you want to exit, say Bye!")
+    for phrase in LiveSpeech():
+        print('you said:')
+        print(phrase)
     
-    user_response = str(phrase)
-    user_response = user_response.lower()
+        user_response = str(phrase)
+        user_response = user_response.lower()
 
-    #Insert Baxter bot commands#
-    if baxter_commands(user_response) == False:
-        ##Conversational
-        if(user_response!='bye'):
-            analyse = wordnet.synsets(user_response)
-            if isinstance(analyse,list) == True and not analyse == []:
-                definition = analyse[0].definition()
-                print(definition)
-                if ('greeting' in definition):
-                    print("Rosie: "+greeting(user_response))
+        #Insert Baxter bot commands#
+        if baxter_commands(user_response) == False:
+            ##Conversational
+            if(user_response!='bye'):
+                analyse = wordnet.synsets(user_response)
+                if isinstance(analyse,list) == True and not analyse == []:
+                    definition = analyse[0].definition()
+                    print(definition)
+                    if ('greeting' in definition):
+                        print("Rosie: "+greeting(user_response))
+                else:
+                    print("Rosie:")
+                    print(Use_Corpus(user_response))
+                    sent_tokens.remove(user_response)
             else:
-                print("Rosie:")
-                print(Use_Corpus(user_response))
-                sent_tokens.remove(user_response)
-        else:
-            print("Rosie: Bye! take care..")  
-            break
+                print("Rosie: Bye! take care..")  
+                break
+
+def Enable_wav():
+    print("Rosie: If you want to exit, say Bye!")
+    for i in inputs_controller():
+        user_response = str(i)
+        user_response = user_response.lower()
+        print("you said: "+user_response)
+        #Insert Baxter bot commands#
+        if baxter_commands(user_response) == False:
+            ##Conversational
+            if(user_response!='bye'):
+                analyse = wordnet.synsets(user_response)
+                if isinstance(analyse,list) == True and not analyse == []:
+                    definition = analyse[0].definition()
+                    print(definition)
+                    if ('greeting' in definition):
+                        print("Rosie: "+greeting(user_response))
+                else:
+                    print("Rosie:")
+                    print(Use_Corpus(user_response))
+                    sent_tokens.remove(user_response)
+            else:
+                print("Rosie: Bye! take care..")  
+                break
+Enable_wav()
 
