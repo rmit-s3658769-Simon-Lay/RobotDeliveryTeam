@@ -1818,13 +1818,23 @@
       </link>
       <static>1</static>
     </model>
-    <model name="superBeerCanPusher">
+    <!-- SUPER BEER CAN PUSHER MODELS START -->
+    <model name="superBeerCanPusherPedestal">
       <include>
-	<static>false</static>
-	<uri>model://superBeerCanPusher</uri>
-	<pose> 50 50 1 50 50 50 </pose>
+	<static>true</static> <!-- We don't want our pedestal moving around! -->
+	<uri>model://superBeerCanPusherPedestal</uri>
+	<pose> 1.427450 0.157910 0.417233 0 0 0 </pose>
       </include>
     </model>
+    <model name="superBeerCanPusherBeer">
+      <include>
+	<static>false</static>
+	<uri>model://superBeerCanPusherBeer</uri>
+	<pose> 1.427450 0.157910 0.839765 0 0 0 </pose>
+	<!-- 1.150010 0.140865 0.839765 -->
+      </include>
+    </model>
+    <!-- SUPER BEER CAN PUSHER MODELS START -->
     <state world_name='default'>
       <sim_time>0 0</sim_time>
       <real_time>0 0</real_time>

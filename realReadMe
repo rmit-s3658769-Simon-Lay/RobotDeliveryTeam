@@ -1,4 +1,2 @@
-Currently the copy of vxlab.world in the container should be replaced with the
-copy here and the models in GazeboModels should be copied to the
-/root/ws_baxter/src/baxter_simulator/baxter_sim_examples/models/ directory in
-the container.
+Setup models should be run before ./simstart and of course after the
+contrainer is started with run.
