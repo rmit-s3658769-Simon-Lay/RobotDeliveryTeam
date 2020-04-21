@@ -39,6 +39,6 @@ if __name__ == '__main__':
         if result:
             rospy.loginfo("Goal execution done!")
         else:
-            rospy.loginfo("Goal execution unsuccessful!"
+            rospy.loginfo("Goal execution unsuccessful!")
     except rospy.ROSInterruptException:
         rospy.loginfo("Navigation test finished.")
