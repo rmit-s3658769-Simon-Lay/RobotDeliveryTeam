@@ -1830,7 +1830,8 @@
       <include>
 	<static>false</static>
 	<uri>model://superBeerCanPusherBeer</uri>
-	<pose> 1.427450 0.157910 0.839765 0 0 0 </pose>
+	<!-- 0.839765 -->
+	<pose> 1.427450 0.157910 0.83850 0 0 0 </pose>
 	<!-- 1.150010 0.140865 0.839765 -->
       </include>
     </model>
