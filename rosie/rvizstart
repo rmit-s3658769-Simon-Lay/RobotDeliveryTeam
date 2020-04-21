@@ -1,0 +1,3 @@
+export LIBGL_ALWAYS_SOFTWARE=1
+export DISPLAY=novnc:0
+rosrun rviz rviz

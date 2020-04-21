@@ -1,0 +1,8 @@
+# to avoid weird problem with rosie tipping over in sim
+./lift-arms &
+
+./odometry.py &
+./rvizstart &
+
+cp vxlab_sim_map.yaml /root/navigation_ws/navigation/mobility_base_2dnav/yaml/map_server.yaml
+roslaunch ~/rosie/vxlab-nav.launch
