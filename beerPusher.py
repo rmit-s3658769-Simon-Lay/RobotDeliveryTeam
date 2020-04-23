@@ -64,25 +64,48 @@ class Pusher(object):
             self.leftArm.exit_control_mode()
             self.rightArm.exit_control_mode()
             self.publishingRate.publish(100) # 100Hz default joint state rate
-            """ We thing this puts the thread to sleep for a time t that is based on the rate:
+            """ We think this puts the thread to sleep for a time t that is based on the rate:
 		https://stackoverflow.com/questions/23227024/difference-between-spin-and-rate-sleep-in-ros  """
             rate.sleep()
         return True
 
-    def setNeutral(self):
-        # Set both arms back into a neutral pose.
+    def moveArmsToSafetyPosition(self):
+        # Set both arms back into a pose that is deemed to be relatively safe
         print("Moving to neutral pose...")
         """ The move_to_neutral() method of the limb interface, moves all the joints to their neutral pose.
 	This method employs the position controller to send the joints to a pre-defined neutral position:
 	https://sdk.rethinkrobotics.com/intera/Joint_Torque_Springs_Example  """
-        self.leftArm.move_to_neutral()
-        self.rightArm.move_to_neutral()
+        self.__moveLeftArmToSafetyPosition()
+	#        self.rightArm.__moveRightArmToSafetyPosition()
+
+
+    """ Joint/s should be within this range to be considered in position
+	This is basically the tolerance we are aiming for when moving joints
+	(also why doesn't python have constants or case statments >:(0) """
+    JOINT_PLAY = 0.0005
+    LEFT_ARM_JOINTS = ["left_w2", "left_w1", "left_w0", "left_e1", "left_e0", "left_s1", "left_s0"]
+    RIGHT_ARM_JOINTS = ["right_w2", "right_w1", "right_w0", "right_e1", "right_e0", "right_s1", "right_s0"]
+
+
+    def __moveLeftArmToSafetyPosition(self):
+        # Set left arm into a pose that is deemed to be relatively safe
+        ARM = "left"
+        print("moving " + ARM + " arm to the designated safety position")
+        jointPositions = {self.RIGHT_ARM_JOINTS[0]: 0.0, self.RIGHT_ARM_JOINTS[1]: 0.1, self.RIGHT_ARM_JOINTS[2]: 0.0,
+                          self.RIGHT_ARM_JOINTS[3]: 2.5, self.RIGHT_ARM_JOINTS[4]: 0.0, self.RIGHT_ARM_JOINTS[5]: -1.2,
+                          self.RIGHT_ARM_JOINTS[6]: -0.8}
+
+
+    def __moveRightArmToSafetyPosition():
+        print("dummy")
+        # Set left arm into a pose that is deemed to be relatively safe
+        
 
     def cleanShutdown(self):
         print("\nExiting example...")
         # Return to normal
         self.resetControlModes()
-        self.setNeutral()
+        self.moveArmsToSafetyPosition()
         if not self.initState:
             print("Disabling robot...")
             self.robotState.disable()
@@ -90,7 +113,7 @@ class Pusher(object):
 
     def push(self):
         print("we are in Puther.push")
-        self.setNeutral()
+        self.moveArmsToSafetyPosition()
         rate = rospy.Rate(self.rate)
         """ Execute the all important pushing sequence """
         self.__retractLeftArm(rate, "forward")
@@ -101,13 +124,6 @@ class Pusher(object):
         self.__pushButtonWithLeftGripper(rate, "forward")
         time.sleep(100)
 #        while not rospy.is_shutdown():
-
-
-    """ Joint/s should be within this range to be considered in position
-	This is basically the tolerance we are aiming for when moving joints
-	(also why doesn't python have constants or case statments >:(0)"""
-    JOINT_PLAY = 0.0005
-    LEFT_ARM_JOINTS = ["left_w2", "left_w1", "left_w0", "left_e1", "left_e0", "left_s1", "left_s0"]
 
 
             # Retract with elbow facing up
@@ -198,7 +214,7 @@ def main():
     # parser.parse_args(rospy.myargv()[1:])
 
     print("Initializing node... ")
-    rospy.init_node("rsdk_pusher")
+    rospy.init_node("beerPusher")
 
     pusher = Pusher()
     rospy.on_shutdown(pusher.cleanShutdown)
