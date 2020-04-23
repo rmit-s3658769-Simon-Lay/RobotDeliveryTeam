@@ -1,4 +1,0 @@
-#!/bin/bash
-
-source ~/ws_baxter/devel/setup.bash
-rosrun baxter_tools tuck_arms.py -u

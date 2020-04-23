@@ -1,14 +1,11 @@
 #!/bin/bash
 
-#This program will use your public key to ssh into the robodelivery server and pull
-#everything (including this script) to your local machine.  
+#This program will use your public key to ssh into the robodelivery server and push
+#the Github File folder from your local machine to the remote server.  
 #
 #Where to place this script?
 #Please place this script in the directory where you have the project you want to 
-#upload to github.
-#example:
-# ls
-# baxter-sim-demo/
+#upload to the server.
 #
 
 ############################     NOTE    ###############################
@@ -29,6 +26,4 @@ privatekey=$1
 location_in_server=/home/robodeliver/baxter-mobility-base-simdemo/rosie/GithubFile
 
 # shh into the robodeliver server
-rm -rf ./GithubFile
-scp -r -i $privatekey robodeliver@131.170.250.237:$location_in_server .
-
+scp -r -i $privatekey ./GithubFile robodeliver@131.170.250.237:$location_in_server
