@@ -1826,13 +1826,19 @@
 	<pose> 1.427450 0.157910 0.417233 0 0 0 </pose>
       </include>
     </model>
+    <model name="superBeerCanPusherBeerHolder">
+      <static>true</static>
+      <uri>model://superBeerCanPusherBeerHolder</uri>
+      <pos> 0.025956 0.163850 0.0 0 0 0 </pos>
+    </model>
     <model name="superBeerCanPusherBeer">
       <include>
 	<static>false</static>
 	<uri>model://superBeerCanPusherBeer</uri>
+	<pose> 1.093207 0.251916 0.834466 0 0 0 </pose>
 	<!-- 0.839765 -->
 	<!-- <pose> 1.427450 0.157910 0.83850 0 0 0 </pose> -->
-	<pose> 1.427450 0.157910 0.834466 0 0 0 </pose>
+<!--	<pose> 1.427450 0.157910 0.834466 0 0 0 </pose> -->
 	<!-- 1.150010 0.140865 0.839765 -->
       </include>
     </model>
