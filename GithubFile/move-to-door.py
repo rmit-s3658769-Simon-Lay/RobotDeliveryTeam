@@ -5,7 +5,7 @@ import actionlib
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 DOOR_X = 0.25
-DOOR_Y = 5
+DOOR_Y = 5.5
 ORIENT_Z = 0.7
 ORIENT_W = 0.7
 
