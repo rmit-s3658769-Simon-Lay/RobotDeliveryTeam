@@ -60,14 +60,6 @@
         <gravity>1</gravity>
       </link>
     </model>
-    <!-- SUPER BEER CAN PUSHER MODELS START -->
-    <model name="superBeerCanPusherPedestal">
-      <include>
-	<static>true</static> <!-- We don't want our pedestal moving around! -->
-	<uri>model://superBeerCanPusherPedestal</uri>
-	<pose> 1.427450 0.157910 0.417233 0 0 0 </pose>
-      </include>
-    </model>
     <gravity>0 0 -9.8</gravity>
     <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
     <atmosphere type='adiabatic'/>
@@ -1827,7 +1819,21 @@
       <static>1</static>
     </model>
 
-
+    <!-- SUPER BEER CAN PUSHER MODELS START -->
+    <model name="superBeerCanPusherPedestal">
+      <include>
+	<static>true</static> <!-- We don't want our pedestal moving around! -->
+	<uri>model://superBeerCanPusherPedestal</uri>
+	<pose> 1.427450 0.157910 0.417233 0 0 0 </pose>
+      </include>
+    </model>
+    <model name="blockButton">
+      <include>
+	<static>false</static>
+	<uri>model://blockButton</uri>
+	<pos> 1.077940 0.378189 0.942319 0 0 0 </pos>
+      </include>
+    </model>
     
 <!--    <model name="superBeerCanPusherBeerHolder">
       <include>
@@ -2017,13 +2023,6 @@
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
-      </model>
-      <model name="blockButton">
-	<include>
-	  <static>false</static>
-	  <uri>model://blockButton</uri>
-	  <pos> 1.077940 0.378189 0.942302 0 0 0 </pos>
-	</include>
       </model>
       <light name='sun'>
         <pose frame=''>0 0 10 0 -0 0</pose>
