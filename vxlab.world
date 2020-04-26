@@ -1820,10 +1820,10 @@
     </model>
 
     <!-- SUPER BEER CAN PUSHER MODELS START -->
-    <model name="superBeerCanPusherPedestal">
+<!--    <model name="superBeerCanPusherPedestal">
       <include>
-	<static>true</static> <!-- We don't want our pedestal moving around! -->
-	<uri>model://superBeerCanPusherPedestal</uri>
+	<static>true</static>--> <!-- We don't want our pedestal moving around! -->
+<!--	<uri>model://superBeerCanPusherPedestal</uri>
 	<pose> 1.427450 0.157910 0.417233 0 0 0 </pose>
       </include>
     </model>
@@ -1832,6 +1832,14 @@
 	<static>false</static>
 	<uri>model://blockButton</uri>
 	<pos> 1.077940 0.378189 0.942319 0 0 0 </pos>
+      </include>
+      </model> -->
+
+    <model name="tallBoy">
+      <include>
+	<static>false</static>
+	<uri>model://tallBoy</uri>
+	<pos> 1.207773 0.576771 0.690348 0 0 0 </pos>
       </include>
     </model>
     
