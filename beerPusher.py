@@ -242,9 +242,6 @@ class Pusher(object):
 
             
 def main():
-    print("Initializing node... ")
-    rospy.init_node("beerPusher")
-
     pusher = Pusher()
     rospy.on_shutdown(pusher.cleanShutdown)
     pusher.push()
@@ -253,4 +250,6 @@ def main():
     print("Finished.")
 
 if __name__ == "__main__":
+    print("Initializing node... ")
+    rospy.init_node("beerPusher")
     main()
