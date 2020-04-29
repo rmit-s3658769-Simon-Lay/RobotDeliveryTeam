@@ -1857,14 +1857,7 @@
 	<!-- 1.150010 0.140865 0.839765 -->
 <!--      </include>
      </model>-->
-<model name="tallBoy">
-  <link name="doorBell_0">
-    <include>
-      <static>false</static>
-      <uri>model://tallBoy</uri>
-    </include>
-  </link>
-</model>
+
     <!-- SUPER BEER CAN PUSHER MODELS START -->
     <state world_name='default'>
       <sim_time>0 0</sim_time>
@@ -2037,12 +2030,14 @@
       </model>
 
       <model name="tallBoy">
-	<link name="doorBell_0">
-	  <pose> 1.207773 0.576771 0.690348 0 0 0 </pose>
-	  <velocity> 0 0 0 0 -0 0</velocity>
-          <acceleration> 0 0 0 0 -0 0</acceleration>
-          <wrench> 0 0 0 0 -0 0</wrench>
-	</link>
+	<include>
+	  <uri>model://tallBoy</uri>
+	  <pose frame=''> 1.207773 0.576771 0.690348 0 0 0 </pose>
+	  <static>false</static>
+	  <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+	</include>
       </model>
       
       <light name='sun'>
