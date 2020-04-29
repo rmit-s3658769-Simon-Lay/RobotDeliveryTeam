@@ -2,12 +2,20 @@
 
 import rospy
 import actionlib
+import argparse
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 DOOR_X = 0.25
 DOOR_Y = 5.5
 ORIENT_Z = 0.7
 ORIENT_W = 0.7
+
+parser = argparse.ArgumentParser(prog='move-to-door.py', description='Tells Rosie to move to the door')
+parser.add_argument("-p", '--pushButton', action="store_true", help="Pushes the door button on arrival")
+args = parser.parse_args()
+
+if args.pushButton:
+    print 'Attempts to push button'
 
 def movebase_client():
 
