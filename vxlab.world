@@ -1859,7 +1859,7 @@
      </model>-->
 <model name="tallBoy">
   <link name="doorBell_0">
-    <include>      
+    <include>  
       <uri>model://tallBoy</uri>
       <pose frame=""> 0.0 0.0 0.0 0 0 0 </pose>
     </include>
@@ -2051,7 +2051,7 @@
       <model name="tallBoy">
 	<link name="doorBell_0">
 	  <pose frame=""> 0 0 0 0 0 0 </pose>
-	  <static>false</static>
+	  <static>true</static>
 	  <velocity> 0 0 0 0 -0 0</velocity>
 	  <acceleration> 0 0 0 0 -0 0</acceleration>
 	  <wrench> 0 0 0 0 -0 0</wrench>
