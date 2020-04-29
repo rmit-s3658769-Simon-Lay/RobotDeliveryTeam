@@ -1,31 +1,29 @@
 #!/usr/bin/env python
 
-
 import time
 
-
-""" Rospy is a pure Python client library for ROS. The rospy client API enables Python
-Programmers to quickly interface with ROS Topics, Services, and Parameters. """
+""" rospy is a pure Python client library for ROS. The rospy client API enables Python
+programmers to quickly interface with ROS Topics, Services, and Parameters. """
 import rospy
 import baxter_interface
 from baxter_interface import CHECK_VERSION
 
-""" Std_msgs contains wrappers for ROS primitive types, which are documented in the msg
+""" std_msgs contains wrappers for ROS primitive types, which are documented in the msg
 specification: https://wiki.ros.org/msg """
 from std_msgs.msg import (
     UInt16,
     )
 
-class Waver(object):
+class Pusher(object):
     def __init__(self):
-        # Waves like made
+        """ 'Pushes' green button or something idk """
         """ You can create a handle to publish messages to a topic using the
 	rospy.Publisher class. The most common usage for this is to provide
-        the name of the topic and the messsage class/type of the topic. You
-        can then call publish() on that handle to publish a message:
-        https://wiki.ros.org/rospy/Overview/Publishers%20and%20Subscribers """
-        self.publishingRate = rospy.Publisher("robot/joint_state_publisher",
-                                              UInt16, queue_size = 10)
+	the name of the topic and the message class/type of the topic. You
+	can then call publish() on that handle to publish a message:
+	https://wiki.ros.org/rospy/Overview/Publishers%20and%20Subscribers  """
+        self.publishingRate = rospy.Publisher("robot/joint_state_publishrate",
+                                         UInt16, queue_size = 10)
         """ Note: "As of Hydro it is recommended to use the new asynchronous
 	publishing behavior which is more in line with the behavior of roscpp."
 	We are using kinetic (I think.) it is from 2016 which is newer then hydro
@@ -51,8 +49,7 @@ class Waver(object):
         # Set joint state publishing to 500Hz
         self.publishingRate.publish(self.rate)
 
-
-        
+ 
     def resetControlModes(self):
         rate = rospy.Rate(self.rate)
         for _ in xrange(100):   # https://www.pythoncentral.io/how-to-use-pythons-xrange-and-range/
@@ -71,7 +68,6 @@ class Waver(object):
             rate.sleep()
         return True
 
-    
     def moveArmsToSafetyPosition(self):
         # Set both arms back into a pose that is deemed to be relatively safe
         print("Moving to neutral pose...")
@@ -125,6 +121,7 @@ class Waver(object):
             if(nInPosition == len(self.LEFT_ARM_JOINTS) -1):
             	print(ARM + " arm moved to safety position")
             	break
+        
 
     def cleanShutdown(self):
         print("\nExiting example...")
@@ -136,43 +133,88 @@ class Waver(object):
             self.robotState.disable()
         return True
 
-
-    def wave(self):
+    def push(self):
+        print("we are in Puther.push")
         rate = rospy.Rate(self.rate)
         self.moveArmsToSafetyPosition()
-        print("hello I am waving at you :)")        
-        for _ in xrange(10):
-            self.__waveRightArm(self, rate, "inward")
-            #self.waveLeftArm(self, rate, "inward")
-            time.sleep(1)
-            #self.__waveRightArm(self, rate, "outward")
-            #self.waveLeftArm(self, rate, "outward")
+        """ Execute the all important pushing sequence """
+        self.__retractLeftArm(rate, "forward")
+        self.leftGripper.close() # For better button pressing abillities!
+        time.sleep(1)
+        self.__partiallyExtendLeftArm(rate, "forward")
+        time.sleep(1)
+        self.__pushButtonWithLeftGripper(rate, "forward")
 
 
-    def __waveRightArm(self, rate, direction):
+    # Retract with elbow facing up
+    def __retractLeftArm(self, rate, direction):
         # Directions we can move in
-        DIRECTION_0 = "inward"
-        DIRECTION_1 = "outward"
-        ARM = "right"            # Which arm are we using
-        jointPositions = {}
+        DIRECTION_0 = "forward"
+        ARM = "left"            # Which Acorn Risc Machine are we using?
         if(direction == DIRECTION_0):
-            jointPositions = {self.RIGHT_ARM_JOINTS[0]: 0.0, self.RIGHT_ARM_JOINTS[1]: 0.1, self.RIGHT_ARM_JOINTS[2]: 0.0,
-                              self.RIGHT_ARM_JOINTS[3]: 2.5, self.RIGHT_ARM_JOINTS[4]: 0.0, self.RIGHT_ARM_JOINTS[5]: -1.2,
-                              self.RIGHT_ARM_JOINTS[6]: -0.8}
+            print("retracting " + ARM + " arm to " + DIRECTION_0 + " position")
+            jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: 0.1, self.LEFT_ARM_JOINTS[2]: 0.0,
+                              self.LEFT_ARM_JOINTS[3]: 2.5, self.LEFT_ARM_JOINTS[4]: 0.0, self.LEFT_ARM_JOINTS[5]: -1.2,
+                              self.LEFT_ARM_JOINTS[6]: -0.8}
+            while True:
+    	        self.publishingRate.publish(self.rate) # Set publishing rate
+                # Pusher.push main movement sequence
+                self.leftArm.set_joint_positions(jointPositions)
+                rate.sleep()
+                nInPosition = self.__getNumberOfArmAndGripperJointsInPosition(ARM, jointPositions)
+                if(nInPosition == len(self.LEFT_ARM_JOINTS) -1):
+                    print(ARM + " arm retracted to " + DIRECTION_0 + " position")
+                    break
         else:
-            if(direction == DIRECTION_1):
-                print("not yet implemented")
-                """jointPositions = {self.RIGHT_ARM_JOINTS[0]: 0.0, self.RIGHT_ARM_JOINTS[1]: 0.1, self.RIGHT_ARM_JOINTS[2]: 0.0,
-                                  self.RIGHT_ARM_JOINTS[3]: 2.5, self.RIGHT_ARM_JOINTS[4]: 0.0, self.RIGHT_ARM_JOINTS[5]: -1.2,
-                                  self.RIGHT_ARM_JOINTS[6]: -0.8}"""
-            else:
-                print("Error in __waveRightArm, pos = ", direction, ", but the only option/s currently implemented are ", DIRECTION_0, " and " DIRECTION_1)
-                return
-        while True:
-            self.publishingRate.publish(self.rate) # Set publishing rate
-            self.rightArm.set_joint_positions(jointPositions)
-        
+            print("Error in __retractLeftArm, pos = " + direction + ", but the only option/s currently implemented are " + DIRECTION_0)
+
+
+    # Extend arm to roughly half it's length with it's elbow facing up
+    def __partiallyExtendLeftArm(self, rate, direction):
+        # Directions we can move in
+        DIRECTION_0 = "forward"
+        ARM = "left"            # Which Acorn Risc Machine are we using?
+        if(direction == DIRECTION_0):
+            print("partially extending " + ARM + " arm to " + DIRECTION_0 + " position")
+            jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: -0.9, self.LEFT_ARM_JOINTS[2]: 0.0,
+                              self.LEFT_ARM_JOINTS[3]: 1.7, self.LEFT_ARM_JOINTS[4]: 0.0, self.LEFT_ARM_JOINTS[5]: -0.8,
+                              self.LEFT_ARM_JOINTS[6]: -0.8}
+            while True:
+    	        self.publishingRate.publish(self.rate) # Set publishing rate
+                # Pusher.push main movement sequence
+                self.leftArm.set_joint_positions(jointPositions)
+                rate.sleep()
+                nInPosition = self.__getNumberOfArmAndGripperJointsInPosition(ARM, jointPositions)
+                if(nInPosition == len(self.LEFT_ARM_JOINTS) -1):
+                    print(ARM + " arm partially extended to " + DIRECTION_0 + " position")
+                    break
+        else:
+            print("Error in __partiallyExtendLeftArm, pos = ", direction, ", but the only option/s currently implemented are ", DIRECTION_0)
+
             
+    # Moves arm and gripper in appropriate fashion for button pression (or beer bottle spilling.)
+    def __pushButtonWithLeftGripper(self, rate, direction):
+        # Directions we can move in
+        DIRECTION_0 = "forward"
+        ARM = "left"            # Which Acorn Risc Machine are we using?
+        if(direction == DIRECTION_0):
+            print("Attempting to push button using " + ARM + " arm and gripper in " + DIRECTION_0 + " position")
+            jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: -0.525, self.LEFT_ARM_JOINTS[2]: 0.0,
+                              self.LEFT_ARM_JOINTS[3]: 1.0, self.LEFT_ARM_JOINTS[4]: 0.0, self.LEFT_ARM_JOINTS[5]: -0.487,
+                              self.LEFT_ARM_JOINTS[6]: -0.8}
+            while True:
+    	        self.publishingRate.publish(self.rate) # Set publishing rate
+                # Pusher.push main movement sequence
+                self.leftArm.set_joint_positions(jointPositions)
+                rate.sleep()
+                nInPosition = self.__getNumberOfArmAndGripperJointsInPosition(ARM, jointPositions)
+                if(nInPosition == len(self.LEFT_ARM_JOINTS) -1):
+                    print("finished attempt to push button using " + ARM + " arm and gripper in " + DIRECTION_0 + " position")
+                    break
+        else:
+            print("Error in __pushButtonWithLeftGripper, pos = ", direction, ", but the only option/s currently implemented are ", DIRECTION_0)
+
+
     def __getNumberOfArmAndGripperJointsInPosition(self, ARM, jointPositions):
         # Note that ARM and jointPositions must be for the same arm
         nInPosition = 0 # Number of joints that are in position
@@ -195,18 +237,18 @@ class Waver(object):
 
         # We should only reach this point if ARM contains an invalid value, i.e. one that is not in ARMS
         print("Error in  __getNumberOfArmAndGripperJointsInPosition(), invalid value passed via veriable (" + ARM +
-              ") ARM. Valid values are " + ARMS)
+                      ") ARM. Valid values are " + ARMS)
 
-
+            
 def main():
-    waver = Waver()
-    rospy.on_shutdown(waver.cleanShutdown)
-    waver.wave()
+    pusher = Pusher()
+    rospy.on_shutdown(pusher.cleanShutdown)
+    pusher.push()
     time.sleep(2)
 
     print("Finished.")
 
 if __name__ == "__main__":
     print("Initializing node... ")
-    rospy.init_node("waver")
+    rospy.init_node("beerPusher")
     main()

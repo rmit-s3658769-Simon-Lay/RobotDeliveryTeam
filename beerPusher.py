@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-#import argparse
 import time
 
 """ rospy is a pure Python client library for ROS. The rospy client API enables Python
