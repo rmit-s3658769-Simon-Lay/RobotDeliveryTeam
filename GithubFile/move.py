@@ -2,8 +2,14 @@
 
 import rospy
 import actionlib
+import argparse
 
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+
+parser = argparse.ArgumentParser(prog='move.py', description='Tells Rosie to move to a position relative to her location')
+parser.add_argument("-x", '--x_axis', action="store", type=float, default=0, help="Location on the X axis, positive to move forward")
+parser.add_argument("-y", '--y_axis', action="store", type=float, default=0, help="Location on the Y axis, positive to move to the left")
+args = parser.parse_args();
 
 def movebase_client():
 
@@ -14,8 +20,8 @@ def movebase_client():
     goal = MoveBaseGoal()
     goal.target_pose.header.frame_id = "base_link"
     goal.target_pose.header.stamp = rospy.Time.now()
-    goal.target_pose.pose.position.x =  1.0;
-    goal.target_pose.pose.position.y =  0;
+    goal.target_pose.pose.position.x =  args.x_axis;
+    goal.target_pose.pose.position.y =  args.y_axis;
     goal.target_pose.pose.position.z =  0.0;
     goal.target_pose.pose.orientation.x = 0.0;
     goal.target_pose.pose.orientation.y = 0.0;
@@ -40,4 +46,3 @@ if __name__ == '__main__':
             rospy.loginfo("Goal execution unsuccessful!")
     except rospy.ROSInterruptException:
         rospy.loginfo("Navigation test finished.")
-
