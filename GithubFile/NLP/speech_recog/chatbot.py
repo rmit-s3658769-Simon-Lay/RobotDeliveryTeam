@@ -10,7 +10,9 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
 from pocketsphinx import LiveSpeech
 import speech_recognition as sr
-
+#import custom script
+import time
+import os 
 
 def extract_text_from_mv(name_source):
     r = sr.Recognizer()
@@ -27,6 +29,7 @@ def extract_text_from_mv(name_source):
 def inputs_controller():
     input_from_speech = []
     input_from_speech.append(extract_text_from_mv('source_data/sample_forward.wav'))
+    input_from_speech.append(extract_text_from_mv('source_data/sample_stop.wav'))
     input_from_speech.append(extract_text_from_mv('source_data/sample_bye.wav'))
     #input_from_speech = " ".join(input_from_speech)
     #print(input_from_speech)
@@ -69,14 +72,14 @@ def baxter_commands(user_response):
     print(commands)
     for i in commands:
         if run_flag == False:
-            if user_response not in basic_commands_array:
+            if i not in basic_commands_array:
                 return False
             if ('forward' == i):
                 print('moving forward....')
-                ##insert rospy command here
+                os.system("python move-original.py -x 5")
             if ('stop' == i):
                 print('stopping.......')
-                ##insert rospy command here
+                os.system("python stop.py")
             if ('slow' == i):
                 print('slowing down.....')
                 ##insert rospy command here
@@ -91,8 +94,11 @@ def baxter_commands(user_response):
         else:
             if i not in basic_commands_array:
                 run_cmd = run_cmd+" "+i
-            else:
-                print("execute the rospy command: "+run_cmd)
+            if i == commands[-1]:
+                print("execute the rospy command: python "+run_cmd)
+		#hard coded:
+	        os.system("python move-to-door.py -p")
+		os.system("python beerPusher.py")
                 ##insert rospy command here
 
 # Generating response
@@ -144,6 +150,10 @@ def Enable_pocketsphinx():
 def Enable_wav():
     print("Rosie: If you want to exit, say Bye!")
     for i in inputs_controller():
+	#to simulate real world
+	time.sleep(15)
+	#above is to simulate real world
+
         user_response = str(i)
         user_response = user_response.lower()
         print("you said: "+user_response)
