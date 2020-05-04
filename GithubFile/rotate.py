@@ -1,10 +1,18 @@
 #!/usr/bin/env python
 
+import math
 import rospy
 import actionlib
+import argparse
 
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from tf.transformations import quaternion_from_euler
+
+parser = argparse.ArgumentParser(prog='rotate.py', description='Tells Rosie to rotate')
+parser.add_argument("-r", '--roll', action="store", type=float, default=0, help="Roll rotation in degrees, currently does not work for Rosie")
+parser.add_argument("-p", '--pitch', action="store", type=float, default=0, help="Pitch rotation in degrees, currently does not work for Rosie")
+parser.add_argument("-y", '--yaw', action="store", type=float, default=0, help="Yaw rotation in degrees, positive for anti-clockwise")
+args = parser.parse_args();
 
 def movebase_client():
 
@@ -18,7 +26,7 @@ def movebase_client():
     goal.target_pose.pose.position.x =  0.0;
     goal.target_pose.pose.position.y =  0.0;
     goal.target_pose.pose.position.z =  0.0;
-    q = quaternion_from_euler(90, 0, 0);
+    q = quaternion_from_euler(math.radians(args.roll), math.radians(args.pitch), math.radians(args.yaw));
     goal.target_pose.pose.orientation.x = q[0];
     goal.target_pose.pose.orientation.y = q[1];
     goal.target_pose.pose.orientation.z = q[2];
