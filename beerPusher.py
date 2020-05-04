@@ -39,7 +39,7 @@ class Pusher(object):
         self.rightJointNames = self.rightArm.joint_names()
 
         # Control parameters
-        self.rate = 500.0 # Hz
+        self.rate = 100.0 # Hz
 
         rospy.loginfo("Getting robot state... ")
         self.robotState = baxter_interface.RobotEnable(CHECK_VERSION)
@@ -61,8 +61,8 @@ class Pusher(object):
 	current joint angles as the current joint position. Finally, it checks
 	if the robot was initially disabled and if so disables it:
 		https://sdk.rethinkrobotics.com/intera/Joint_Torque_Springs_Example  """
-            self.leftArm.exit_control_mode()
-            self.rightArm.exit_control_mode()
+            #self.leftArm.exit_control_mode()
+            #self.rightArm.exit_control_mode()
             self.publishingRate.publish(100) # 100Hz default joint state rate
             """ We think this puts the thread to sleep for a time t that is based on the rate:
 		https://stackoverflow.com/questions/23227024/difference-between-spin-and-rate-sleep-in-ros  """
@@ -128,8 +128,6 @@ class Pusher(object):
         rospy.loginfo("\nExiting example...")
         # Return to normal
         self.resetControlModes()
-        self.moveArmsToSafetyPosition()
-        rospy.signal_shutdown("Signaling shutdown")
         if not self.initState:
             rospy.loginfo("Disabling robot...")
             self.robotState.disable()
@@ -246,7 +244,8 @@ def main():
     pusher = Pusher()
     rospy.on_shutdown(pusher.cleanShutdown)
     pusher.push()
-    time.sleep(2)
+    time.sleep(1)
+    pusher.moveArmsToSafetyPosition()
 
     rospy.loginfo("Finished.")
 
