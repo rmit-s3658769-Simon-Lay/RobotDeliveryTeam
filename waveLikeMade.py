@@ -140,23 +140,34 @@ class Waver(object):
         rate = rospy.Rate(self.rate)
         self.moveArmsToSafetyPosition()
         rospy.loginfo("Hello I am waving at you :)")
-        waveFactor = .15
+        waveBreakFactor = .15
 	startTime = time.time()
 	while True:
             if((time.time() - startTime) >= waveFor):
             	break
             self.__waveRightArm(rate, "inward")
-            time.sleep(waveFactor)
+            time.sleep(waveBreakFactor)
             self.__waveRightArm(rate, "outward")
-        time.sleep(waveFactor)
+        time.sleep(waveBreakFactor)
         self.__waveRightArm(rate, "inward") # Arm will be closer to body and this is a safer position to move to the nutural postion from
-        time.sleep(waveFactor)
+        time.sleep(waveBreakFactor)
 
 
-    def waveLeftArm(self):
+    def waveLeftArm(self, waveFor):
         rate = rospy.Rate(self.rate)
         self.moveArmsToSafetyPosition()
         rospy.loginfo("Hello I am waving at you :)")
+        waveBreakFactor = .15
+        startTime = time.time()
+        while True:
+            if((time.time() - startTime) >= waveFor):
+                break
+            self.__waveLeftArm(rate, "inward")
+            time.sleep(waveBreakFactor)
+            self.__waveLeftArm(rate, "outward")
+        time.sleep(waveBreakFactor)
+        self.__waveLeftArm(rate, "inward")
+        time.sleep(waveBreakFactor) # Arm will be closer to body and this is a safer position to move to the nutural postion from
         
 
     def __waveRightArm(self, rate, direction):
@@ -182,6 +193,34 @@ class Waver(object):
             rate.sleep()
             nInPosition = self.__getNumberOfArmAndGripperJointsInPosition(ARM, jointPositions)
             if(nInPosition == len(self.RIGHT_ARM_JOINTS) -1):
+                rospy.loginfo(ARM + " has been waved in direction " + direction + "!")
+                break;
+
+
+            
+    def __waveLeftArm(self, rate, direction):
+        # Directions we can move in
+        DIRECTION = ["inward", "outward"]
+        ARM = "left"
+        jointPositions = {}
+        if(direction == DIRECTION[0]):
+            jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: 0.4, self.LEFT_ARM_JOINTS[2]: 0.22,
+                              self.LEFT_ARM_JOINTS[3]: 2.06, self.LEFT_ARM_JOINTS[4]: 3.0, self.LEFT_ARM_JOINTS[5]: 2.5,
+                              self.LEFT_ARM_JOINTS[6]: -0.62}
+        else:
+            if(direction == DIRECTION[1]):
+                jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: 0.4, self.LEFT_ARM_JOINTS[2]: -0.3,
+                                  self.LEFT_ARM_JOINTS[3]: 2.0, self.LEFT_ARM_JOINTS[4]: 3.0, self.LEFT_ARM_JOINTS[5]: 2.5,
+                                  self.LEFT_ARM_JOINTS[6]: -0.32}
+            else:
+                rospy.logerr("Error in __waveArms, pos = " + direction + ", but the only option/s currently implemented are " + DIRECTION)
+                return
+        while True:
+            self.publishingRate.publish(self.rate) # Set publishing rate
+            self.leftArm.set_joint_positions(jointPositions)
+            rate.sleep()
+            nInPosition = self.__getNumberOfArmAndGripperJointsInPosition(ARM, jointPositions)
+            if(nInPosition == len(self.LEFT_ARM_JOINTS) -1):
                 rospy.loginfo(ARM + " has been waved in direction " + direction + "!")
                 break;
         
@@ -210,11 +249,12 @@ class Waver(object):
         rospy.logerr("Error in  __getNumberOfArmAndGripperJointsInPosition(), invalid value passed via veriable (" + ARM +
               ") ARM. Valid values are " + ARMS)
 
-
+        
 def main():
     waver = Waver()
     rospy.on_shutdown(waver.cleanShutdown)
     waver.waveRightArm(6)
+    waver.waveLeftArm(6)
     time.sleep(1)
     waver.moveArmsToSafetyPosition()
     time.sleep(2)
