@@ -136,17 +136,21 @@ class Waver(object):
         return True
 
 
-    def waveRightArm(self):
+    def waveRightArm(self, waveFor):
         rate = rospy.Rate(self.rate)
         self.moveArmsToSafetyPosition()
-        rospy.loginfo("Hello I am waving at you :)")        
-        for _ in xrange(6):
+        rospy.loginfo("Hello I am waving at you :)")
+        waveFactor = .15
+	startTime = time.time()
+	while True:
+            if((time.time() - startTime) >= waveFor):
+            	break
             self.__waveRightArm(rate, "inward")
-            time.sleep(.15)
+            time.sleep(waveFactor)
             self.__waveRightArm(rate, "outward")
-        time.sleep(.150)
+        time.sleep(waveFactor)
         self.__waveRightArm(rate, "inward") # Arm will be closer to body and this is a safer position to move to the nutural postion from
-        time.sleep(.150)
+        time.sleep(waveFactor)
 
 
     def waveLeftArm(self):
@@ -210,7 +214,7 @@ class Waver(object):
 def main():
     waver = Waver()
     rospy.on_shutdown(waver.cleanShutdown)
-    waver.waveRightArm()
+    waver.waveRightArm(6)
     time.sleep(1)
     waver.moveArmsToSafetyPosition()
     time.sleep(2)
