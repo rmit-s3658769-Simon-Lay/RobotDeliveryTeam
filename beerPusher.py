@@ -94,8 +94,8 @@ class Pusher(object):
         # Set left arm into a pose that is deemed to be relatively safe
         ARM = "left"
         rospy.loginfo("moving " + ARM + " arm to the designated safety position")
-        jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: -0.77, self.LEFT_ARM_JOINTS[2]: 0.0,
-                          self.LEFT_ARM_JOINTS[3]: 1.1, self.LEFT_ARM_JOINTS[4]: 0.0, self.LEFT_ARM_JOINTS[5]: 0.82,
+        jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: -1.5, self.LEFT_ARM_JOINTS[2]: 0.0,
+                          self.LEFT_ARM_JOINTS[3]: 1.4, self.LEFT_ARM_JOINTS[4]: 0.0, self.LEFT_ARM_JOINTS[5]: 0.71,
                           self.LEFT_ARM_JOINTS[6]: 0.8}
         while True:
             self.publishingRate.publish(self.rate) # Set publishing rate
@@ -111,10 +111,11 @@ class Pusher(object):
         # Set right arm into a pose that is deemed to be relatively safe
         ARM = "right"
         rospy.loginfo("moving " + ARM + " arm to the designated safety position")
-        jointPositions = {self.RIGHT_ARM_JOINTS[0]: 0.0, self.RIGHT_ARM_JOINTS[1]: 0.1, self.RIGHT_ARM_JOINTS[2]: 0.0,
-                          self.RIGHT_ARM_JOINTS[3]: 0.5, self.RIGHT_ARM_JOINTS[4]: 0.0, self.RIGHT_ARM_JOINTS[5]: 1.1,
+        jointPositions = {self.RIGHT_ARM_JOINTS[0]: 0.0, self.RIGHT_ARM_JOINTS[1]: -1.5, self.RIGHT_ARM_JOINTS[2]: 0.0,
+                          self.RIGHT_ARM_JOINTS[3]: 1.4, self.RIGHT_ARM_JOINTS[4]: 0.0, self.RIGHT_ARM_JOINTS[5]: 0.71,
                           self.RIGHT_ARM_JOINTS[6]: -0.8}
         while True:
+            print("waiting for right")
             self.publishingRate.publish(self.rate) # Set publishing rate
             self.rightArm.set_joint_positions(jointPositions)
             rate.sleep()
@@ -223,10 +224,16 @@ class Pusher(object):
         for iter in range(0, len(ARMS)):
             if(ARM == ARMS[iter]):
                 if(ARM == ARMS[0]):
+                    print("")
                     for iter in range(0, len(self.LEFT_ARM_JOINTS)):
                         if(self.leftArm.joint_angle(self.LEFT_ARM_JOINTS[iter]) >= (jointPositions[self.LEFT_ARM_JOINTS[iter]] - self.JOINT_PLAY) and
                            self.leftArm.joint_angle(self.LEFT_ARM_JOINTS[iter]) <= (jointPositions[self.LEFT_ARM_JOINTS[iter]] + self.JOINT_PLAY)):
                             nInPosition += 1
+                        else:
+                            print("self.leftArm.joint_angle(self.LEFT_ARM_JOINTS[iter]) = " + str(self.leftArm.joint_angle(self.LEFT_ARM_JOINTS[iter])))
+                            print("(jointPositions[self.LEFT_ARM_JOINTS[iter]] - self.JOINT_PLAY) = " + str((jointPositions[self.LEFT_ARM_JOINTS[iter]] - self.JOINT_PLAY)))
+                            print("(jointPositions[self.LEFT_ARM_JOINTS[iter]] + self.JOINT_PLAY) = " + str((jointPositions[self.LEFT_ARM_JOINTS[iter]] + self.JOINT_PLAY)))
+                            print("")
             else:
                 if(ARM == ARMS[1]):
                     for iter in range(0, len(self.RIGHT_ARM_JOINTS)):
