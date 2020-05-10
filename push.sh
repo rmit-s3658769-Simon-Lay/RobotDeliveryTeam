@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #This program will use your public key to ssh into the robodelivery server and push
 #the Github File folder from your local machine to the remote server.  

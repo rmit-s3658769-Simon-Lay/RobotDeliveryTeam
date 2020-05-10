@@ -1,21 +1,23 @@
 #!/usr/bin/env python
 
+
 import time
 
-""" rospy is a pure Python client library for ROS. The rospy client API enables Python
-programmers to quickly interface with ROS Topics, Services, and Parameters. """
+
+""" Rospy is a pure Python client library for ROS. The rospy client API enables Python
+Programmers to quickly interface with ROS Topics, Services, and Parameters. """
 import rospy
 import baxter_interface
 from baxter_interface import CHECK_VERSION
 
-""" std_msgs contains wrappers for ROS primitive types, which are documented in the msg
+""" Std_msgs contains wrappers for ROS primitive types, which are documented in the msg
 specification: https://wiki.ros.org/msg """
 from std_msgs.msg import (
     UInt16,
     )
 
-class Pusher(object):
-    # Error return codes
+class Waver(object):
+        # Error return codes
     ERROR_LIMB_MOVEMENT_TIMEOUT = -1
     ERROR_NO_SUCH_LIMB = -2
     ERROR_NO_SUCH_DIRECTION = -3
@@ -27,15 +29,16 @@ class Pusher(object):
     LEFT_ARM_JOINTS = ["left_w2", "left_w1", "left_w0", "left_e1", "left_e0", "left_s1", "left_s0"]
     RIGHT_ARM_JOINTS = ["right_w2", "right_w1", "right_w0", "right_e1", "right_e0", "right_s1", "right_s0"]
     
+    
     def __init__(self):
-        """ 'Pushes' green button or something idk """
+        # Waves like made
         """ You can create a handle to publish messages to a topic using the
 	rospy.Publisher class. The most common usage for this is to provide
-	the name of the topic and the message class/type of the topic. You
-	can then call publish() on that handle to publish a message:
-	https://wiki.ros.org/rospy/Overview/Publishers%20and%20Subscribers  """
-        self.publishingRate = rospy.Publisher("robot/joint_state_publishrate",
-                                         UInt16, queue_size = 10)
+        the name of the topic and the messsage class/type of the topic. You
+        can then call publish() on that handle to publish a message:
+        https://wiki.ros.org/rospy/Overview/Publishers%20and%20Subscribers """
+        self.publishingRate = rospy.Publisher("robot/joint_state_publisher",
+                                              UInt16, queue_size = 10)
         """ Note: "As of Hydro it is recommended to use the new asynchronous
 	publishing behavior which is more in line with the behavior of roscpp."
 	We are using kinetic (I think.) it is from 2016 which is newer then hydro
@@ -61,6 +64,7 @@ class Pusher(object):
         # Set joint state publishing to 500Hz
         self.publishingRate.publish(self.rate)
 
+
         
     def resetControlModes(self):
         rate = rospy.Rate(self.rate)
@@ -72,14 +76,15 @@ class Pusher(object):
 	current joint angles as the current joint position. Finally, it checks
 	if the robot was initially disabled and if so disables it:
 		https://sdk.rethinkrobotics.com/intera/Joint_Torque_Springs_Example  """
-            #self.leftArm.exit_control_mode()
-            #self.rightArm.exit_control_mode()
+            self.leftArm.exit_control_mode()
+            self.rightArm.exit_control_mode()
             self.publishingRate.publish(100) # 100Hz default joint state rate
             """ We think this puts the thread to sleep for a time t that is based on the rate:
 		https://stackoverflow.com/questions/23227024/difference-between-spin-and-rate-sleep-in-ros  """
             rate.sleep()
         return True
 
+    
     def moveArmsToSafetyPosition(self):
         # Set both arms back into a pose that is deemed to be relatively safe
         rospy.loginfo("Moving to neutral pose...")
@@ -101,8 +106,19 @@ class Pusher(object):
                           self.LEFT_ARM_JOINTS[3]: 1.25, self.LEFT_ARM_JOINTS[4]: 0.0, self.LEFT_ARM_JOINTS[5]: 0.71,
                           self.LEFT_ARM_JOINTS[6]: 0.8}
         self.__waitForLimbToMoveToPosition(rate, ARM, jointPositions, self.LIMB_MOVEMENT_TIMEOUT_TIME, " arm moved to safety position")
-            
 
+
+    def __moveRightArmToSafetyPosition(self, rate):
+        # Set right arm into a pose that is deemed to be relatively safe
+        ARM = "right"
+        rospy.loginfo("Moving " + ARM + " arm to the designated safety position")
+        jointPositions = {self.RIGHT_ARM_JOINTS[0]: 0.0, self.RIGHT_ARM_JOINTS[1]: -1.5, self.RIGHT_ARM_JOINTS[2]: 0.0,
+                          self.RIGHT_ARM_JOINTS[3]: 1.25, self.RIGHT_ARM_JOINTS[4]: 0.0, self.RIGHT_ARM_JOINTS[5]: 0.71,
+                          self.RIGHT_ARM_JOINTS[6]: -0.8}
+        self.__waitForLimbToMoveToPosition(rate, ARM, jointPositions, self.LIMB_MOVEMENT_TIMEOUT_TIME, " arm moved to safety position")
+
+
+        
     def __waitForLimbToMoveToPosition(self, rate, ARM, jointPositions, TIMEOUT, MSG):
         ARMS = ["left", "right"]
 
@@ -129,22 +145,12 @@ class Pusher(object):
                 break
             currentTime = time.time()
             if((startTime + TIMEOUT) - currentTime < 0):
-                rospy.logerr("Error (in __waitForLimbToMoveToPosition()): failed to move all joints in " + ARM + " arm into position within " + TIMEOUT + " seconds.")
+                rospy.logerr("Error (in __waitForLimbToMoveToPosition()): failed to move all joints in " + ARM + " arm into position within " + str(TIMEOUT) + " seconds.")
                 exit(self.ERROR_LIMB_MOVEMENT_TIMEOUT)
-            
-
-    def __moveRightArmToSafetyPosition(self, rate):
-        # Set right arm into a pose that is deemed to be relatively safe
-        ARM = "right"
-        rospy.loginfo("Moving " + ARM + " arm to the designated safety position")
-        jointPositions = {self.RIGHT_ARM_JOINTS[0]: 0.0, self.RIGHT_ARM_JOINTS[1]: -1.5, self.RIGHT_ARM_JOINTS[2]: 0.0,
-                          self.RIGHT_ARM_JOINTS[3]: 1.25, self.RIGHT_ARM_JOINTS[4]: 0.0, self.RIGHT_ARM_JOINTS[5]: 0.71,
-                          self.RIGHT_ARM_JOINTS[6]: -0.8}
-        self.__waitForLimbToMoveToPosition(rate, ARM, jointPositions, self.LIMB_MOVEMENT_TIMEOUT_TIME, " arm moved to safety position")
         
 
     def cleanShutdown(self):
-        rospy.loginfo("\nExiting beerPusher.py...")
+        rospy.loginfo("\nExiting example...")
         # Return to normal
         self.resetControlModes()
         if not self.initState:
@@ -152,67 +158,82 @@ class Pusher(object):
             self.robotState.disable()
         return True
 
-    def push(self):
-        rospy.loginfo("We are in Puther.push")
+
+    def waveRightArm(self, waveFor):
         rate = rospy.Rate(self.rate)
         self.moveArmsToSafetyPosition()
-        """ Execute the all important pushing sequence """
-        self.__retractLeftArm(rate, "forward")
-        self.leftGripper.close() # For better button pressing abillities!
-        time.sleep(1)
-        self.__partiallyExtendLeftArm(rate, "forward")
-        time.sleep(1)
-        self.__pushButtonWithLeftGripper(rate, "forward")
+        rospy.loginfo("Hello I am waving at you :)")
+        waveBreakFactor = .15
+	startTime = time.time()
+	while True:
+            if((time.time() - startTime) >= waveFor):
+            	break
+            self.__waveRightArm(rate, "inward")
+            time.sleep(waveBreakFactor)
+            self.__waveRightArm(rate, "outward")
+        time.sleep(waveBreakFactor)
+        self.__waveRightArm(rate, "inward") # Arm will be closer to body and this is a safer position to move to the nutural postion from
+        time.sleep(waveBreakFactor)
 
 
-    # Retract with elbow facing up
-    def __retractLeftArm(self, rate, direction):
+    def waveLeftArm(self, waveFor):
+        rate = rospy.Rate(self.rate)
+        self.moveArmsToSafetyPosition()
+        rospy.loginfo("Hello I am waving at you :)")
+        waveBreakFactor = .15
+        startTime = time.time()
+        while True:
+            if((time.time() - startTime) >= waveFor):
+                break
+            self.__waveLeftArm(rate, "inward")
+            time.sleep(waveBreakFactor)
+            self.__waveLeftArm(rate, "outward")
+        time.sleep(waveBreakFactor)
+        self.__waveLeftArm(rate, "inward")
+        time.sleep(waveBreakFactor) # Arm will be closer to body and this is a safer position to move to the nutural postion from
+        
+
+    def __waveRightArm(self, rate, direction):
         # Directions we can move in
-        DIRECTION_0 = "forward"
-        ARM = "left"            # Which Acorn Risc Machine are we using?
-        if(direction == DIRECTION_0):
-            rospy.loginfo("Retracting " + ARM + " arm to " + DIRECTION_0 + " position")
-            jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: 0.1, self.LEFT_ARM_JOINTS[2]: 0.0,
-                              self.LEFT_ARM_JOINTS[3]: 2.5, self.LEFT_ARM_JOINTS[4]: 0.0, self.LEFT_ARM_JOINTS[5]: -1.2,
-                              self.LEFT_ARM_JOINTS[6]: -0.8}
-            self.__waitForLimbToMoveToPosition(rate, ARM, jointPositions, self.LIMB_MOVEMENT_TIMEOUT_TIME, " arm retracted to " + DIRECTION_0 + " position")
+        DIRECTION = ["inward", "outward"]
+        ARM = "right"
+        jointPositions = {}
+        if(direction == DIRECTION[0]):
+            jointPositions = {self.RIGHT_ARM_JOINTS[0]: 0.0, self.RIGHT_ARM_JOINTS[1]: 0.4, self.RIGHT_ARM_JOINTS[2]: -0.5,
+                              self.RIGHT_ARM_JOINTS[3]: 2.0, self.RIGHT_ARM_JOINTS[4]: 3.0, self.RIGHT_ARM_JOINTS[5]: 1.0,
+                              self.RIGHT_ARM_JOINTS[6]: 0.7}
         else:
-            rospy.logerr("Error (in __retractLeftArm()): pos = " + direction + ", but the only option/s currently implemented are " + DIRECTION_0)
-            exit(self.ERROR_NO_SUCH_DIRECTION)
+            if(direction == DIRECTION[1]):
+                jointPositions = {self.RIGHT_ARM_JOINTS[0]: 0.0, self.RIGHT_ARM_JOINTS[1]: 0.4, self.RIGHT_ARM_JOINTS[2]: 0.5,
+                                  self.RIGHT_ARM_JOINTS[3]: 2.0, self.RIGHT_ARM_JOINTS[4]: 3.0, self.RIGHT_ARM_JOINTS[5]: 1.0,
+                                  self.RIGHT_ARM_JOINTS[6]: 0.3}
+            else:
+                rospy.logerr("Error (in __waveArms()): pos = " + direction + ", but the only option/s currently implemented are " + DIRECTION)
+                exit(self.ERROR_NO_SUCH_DIRECTION)
+        self.__waitForLimbToMoveToPosition(rate, ARM, jointPositions, self.LIMB_MOVEMENT_TIMEOUT_TIME, " has been waved in direction " + direction + "!")
 
-
-    # Extend arm to roughly half it's length with it's elbow facing up
-    def __partiallyExtendLeftArm(self, rate, direction):
-        # Directions we can move in
-        DIRECTION_0 = "forward"
-        ARM = "left"            # Which Acorn Risc Machine are we using?
-        if(direction == DIRECTION_0):
-            rospy.loginfo("Partially extending " + ARM + " arm to " + DIRECTION_0 + " position")
-            jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: -0.9, self.LEFT_ARM_JOINTS[2]: 0.0,
-                              self.LEFT_ARM_JOINTS[3]: 1.7, self.LEFT_ARM_JOINTS[4]: 0.0, self.LEFT_ARM_JOINTS[5]: -0.8,
-                              self.LEFT_ARM_JOINTS[6]: -0.8}
-            self.__waitForLimbToMoveToPosition(rate, ARM, jointPositions, self.LIMB_MOVEMENT_TIMEOUT_TIME, " arm partially extended to " + DIRECTION_0 + " position")
-        else:
-            rospy.logerr("Error (in __partiallyExtendLeftArm()): pos = ", direction, ", but the only option/s currently implemented are ", DIRECTION_0)
-            exit(self.ERROR_NO_SUCH_DIRECTION)
 
             
-    # Moves arm and gripper in appropriate fashion for button pression (or beer bottle spilling.)
-    def __pushButtonWithLeftGripper(self, rate, direction):
+    def __waveLeftArm(self, rate, direction):
         # Directions we can move in
-        DIRECTION_0 = "forward"
-        ARM = "left"            # Which Acorn Risc Machine are we using?
-        if(direction == DIRECTION_0):
-            rospy.loginfo("Attempting to push button using " + ARM + " arm and gripper in " + DIRECTION_0 + " position")
-            jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: -0.525, self.LEFT_ARM_JOINTS[2]: 0.0,
-                              self.LEFT_ARM_JOINTS[3]: 1.0, self.LEFT_ARM_JOINTS[4]: 0.0, self.LEFT_ARM_JOINTS[5]: -0.487,
-                              self.LEFT_ARM_JOINTS[6]: -0.8}
-            self.__waitForLimbToMoveToPosition(rate, ARM, jointPositions, self.LIMB_MOVEMENT_TIMEOUT_TIME, " arm and gripper in " + DIRECTION_0 + " position. Finished attempt to push button." )
+        DIRECTION = ["inward", "outward"]
+        ARM = "left"
+        jointPositions = {}
+        if(direction == DIRECTION[0]):
+            jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: 0.4, self.LEFT_ARM_JOINTS[2]: 0.22,
+                              self.LEFT_ARM_JOINTS[3]: 2.06, self.LEFT_ARM_JOINTS[4]: -3.0, self.LEFT_ARM_JOINTS[5]: 1.0,
+                              self.LEFT_ARM_JOINTS[6]: -0.72}
         else:
-            rospy.logerr("Error (in __pushButtonWithLeftGripper()): pos = ", direction, ", but the only option/s currently implemented are ", DIRECTION_0)
-            exit(self.ERROR_NO_SUCH_DIRECTION)
-
-
+            if(direction == DIRECTION[1]):
+                jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: 0.4, self.LEFT_ARM_JOINTS[2]: -0.3,
+                                  self.LEFT_ARM_JOINTS[3]: 2.0, self.LEFT_ARM_JOINTS[4]: -3.0, self.LEFT_ARM_JOINTS[5]: 1.0,
+                                  self.LEFT_ARM_JOINTS[6]: -0.32}
+            else:
+                rospy.logerr("Error (in __waveArms()): pos = " + direction + ", but the only option/s currently implemented are " + DIRECTION)
+                exit(self.ERROR_NO_SUCH_DIRECTION)
+        self.__waitForLimbToMoveToPosition(rate, ARM, jointPositions, self.LIMB_MOVEMENT_TIMEOUT_TIME, " has been waved in direction " + direction + "!")
+        
+            
     def __getNumberOfArmAndGripperJointsInPosition(self, ARM, jointPositions):
         # Note that ARM and jointPositions must be for the same arm
         nInPosition = 0 # Number of joints that are in position
@@ -227,26 +248,29 @@ class Pusher(object):
             if(ARM == ARMS[1]):
                 for iter in range(0, len(self.RIGHT_ARM_JOINTS)):
                     if(self.rightArm.joint_angle(self.RIGHT_ARM_JOINTS[iter]) >= (jointPositions[self.RIGHT_ARM_JOINTS[iter]] - self.JOINT_PLAY) and
-                       self.rightArm.joint_angle(self.RIGHT_ARM_JOINTS[iter]) <= (jointPositions[self.RIGHT_ARM_JOINTS[iter]] + self.JOINT_PLAY)):
-                        nInPosition += 1
+                           self.rightArm.joint_angle(self.RIGHT_ARM_JOINTS[iter]) <= (jointPositions[self.RIGHT_ARM_JOINTS[iter]] + self.JOINT_PLAY)):
+                            nInPosition += 1
         return nInPosition
 
         # We should only reach this point if ARM contains an invalid value, i.e. one that is not in ARMS
-        rospy.logerr("Error (in  __getNumberOfArmAndGripperJointsInPosition()): invalid value passed via veriable (" + ARM +
-                      ") ARM. Valid values are " + ARMS)
+        rospy.logerr("Error in  (__getNumberOfArmAndGripperJointsInPosition()): invalid value passed via veriable (" + ARM +
+              ") ARM. Valid values are " + ARMS)
         exit(self.ERROR_NO_SUCH_LIMB)
 
-            
+        
 def main():
-    pusher = Pusher()
-    rospy.on_shutdown(pusher.cleanShutdown)
-    pusher.push()
+    waver = Waver()
+    rospy.on_shutdown(waver.cleanShutdown)
+    WAVE_FOR = 6                # Seconds
+    waver.waveRightArm(WAVE_FOR) # This one look's better!
+#    waver.waveLeftArm(WAVE_FOR) 
     time.sleep(1)
-    pusher.moveArmsToSafetyPosition()
+    waver.moveArmsToSafetyPosition()
+    time.sleep(2)
 
     rospy.loginfo("Finished.")
 
 if __name__ == "__main__":
     rospy.loginfo("Initializing node... ")
-    rospy.init_node("beerPusher")
+    rospy.init_node("waver")
     main()
