@@ -1819,13 +1819,29 @@
       <static>1</static>
     </model>
 
-
+    <!-- Load something for our beer button to sit on. -->
     <model name="beerPedestal">
       <link name="beerPedestal">
 	<include>
 	  
 	  <uri>model://beerPedestal</uri>
 	  <pose frame=""> -0.590677 6.026460 0.739853 0 0 0 </pose>
+	  
+	  <static>true</static>
+	  <velocity> 0 0 0 0 -0 0</velocity>
+	  <acceleration> 0 0 0 0 -0 0</acceleration>
+	  <wrench> 0 0 0 0 -0 0</wrench>
+	  
+	</include>
+      </link>
+    </model>
+    <!-- Load our beer can! -->
+    <model name="beer">
+      <link name="beer">
+	<include>
+	  
+	  <uri>model://beer</uri>
+	  <pose frame=""> -0.591135 5.932420 1.030944 0 0 0 </pose>
 	  
 	  <static>true</static>
 	  <velocity> 0 0 0 0 -0 0</velocity>
