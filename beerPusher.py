@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 
 import time
-
 """ rospy is a pure Python client library for ROS. The rospy client API enables Python
 programmers to quickly interface with ROS Topics, Services, and Parameters. """
 import rospy
 import baxter_interface
 from baxter_interface import CHECK_VERSION
 
+
 """ std_msgs contains wrappers for ROS primitive types, which are documented in the msg
 specification: https://wiki.ros.org/msg """
 from std_msgs.msg import (
     UInt16,
     )
+
 
 class Pusher(object):
     # Error return codes
@@ -26,6 +27,7 @@ class Pusher(object):
     LIMB_MOVEMENT_TIMEOUT_TIME = 10 # In seconds
     LEFT_ARM_JOINTS = ["left_w2", "left_w1", "left_w0", "left_e1", "left_e0", "left_s1", "left_s0"]
     RIGHT_ARM_JOINTS = ["right_w2", "right_w1", "right_w0", "right_e1", "right_e0", "right_s1", "right_s0"]
+    
     
     def __init__(self):
         """ 'Pushes' green button or something idk """
@@ -58,7 +60,7 @@ class Pusher(object):
         rospy.loginfo("Enabling robot... ")
         self.robotState.enable()
 
-        # Set joint state publishing to 500Hz
+        # Set joint state publishing to 100Hz
         self.publishingRate.publish(self.rate)
 
         
@@ -103,6 +105,16 @@ class Pusher(object):
         self.__waitForLimbToMoveToPosition(rate, ARM, jointPositions, self.LIMB_MOVEMENT_TIMEOUT_TIME, " arm moved to safety position")
             
 
+    def __moveRightArmToSafetyPosition(self, rate):
+        # Set right arm into a pose that is deemed to be relatively safe
+        ARM = "right"
+        rospy.loginfo("Moving " + ARM + " arm to the designated safety position")
+        jointPositions = {self.RIGHT_ARM_JOINTS[0]: 0.0, self.RIGHT_ARM_JOINTS[1]: -1.5, self.RIGHT_ARM_JOINTS[2]: 0.0,
+                          self.RIGHT_ARM_JOINTS[3]: 1.25, self.RIGHT_ARM_JOINTS[4]: 0.0, self.RIGHT_ARM_JOINTS[5]: 0.71,
+                          self.RIGHT_ARM_JOINTS[6]: -0.8}
+        self.__waitForLimbToMoveToPosition(rate, ARM, jointPositions, self.LIMB_MOVEMENT_TIMEOUT_TIME, " arm moved to safety position")
+
+
     def __waitForLimbToMoveToPosition(self, rate, ARM, jointPositions, TIMEOUT, MSG):
         ARMS = ["left", "right"]
 
@@ -129,18 +141,8 @@ class Pusher(object):
                 break
             currentTime = time.time()
             if((startTime + TIMEOUT) - currentTime < 0):
-                rospy.logerr("Error (in __waitForLimbToMoveToPosition()): failed to move all joints in " + ARM + " arm into position within " + TIMEOUT + " seconds.")
+                rospy.logerr("Error (in __waitForLimbToMoveToPosition()): failed to move all joints in " + ARM + " arm into position within " + str(TIMEOUT) + " seconds.")
                 exit(self.ERROR_LIMB_MOVEMENT_TIMEOUT)
-            
-
-    def __moveRightArmToSafetyPosition(self, rate):
-        # Set right arm into a pose that is deemed to be relatively safe
-        ARM = "right"
-        rospy.loginfo("Moving " + ARM + " arm to the designated safety position")
-        jointPositions = {self.RIGHT_ARM_JOINTS[0]: 0.0, self.RIGHT_ARM_JOINTS[1]: -1.5, self.RIGHT_ARM_JOINTS[2]: 0.0,
-                          self.RIGHT_ARM_JOINTS[3]: 1.25, self.RIGHT_ARM_JOINTS[4]: 0.0, self.RIGHT_ARM_JOINTS[5]: 0.71,
-                          self.RIGHT_ARM_JOINTS[6]: -0.8}
-        self.__waitForLimbToMoveToPosition(rate, ARM, jointPositions, self.LIMB_MOVEMENT_TIMEOUT_TIME, " arm moved to safety position")
         
 
     def cleanShutdown(self):

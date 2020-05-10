@@ -61,7 +61,7 @@ class Waver(object):
         rospy.loginfo("Enabling robot... ")
         self.robotState.enable()
 
-        # Set joint state publishing to 500Hz
+        # Set joint state publishing to 100Hz
         self.publishingRate.publish(self.rate)
 
 
