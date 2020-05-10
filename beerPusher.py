@@ -94,8 +94,8 @@ class Pusher(object):
         # Set left arm into a pose that is deemed to be relatively safe
         ARM = "left"
         rospy.loginfo("moving " + ARM + " arm to the designated safety position")
-        jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: 0.1, self.LEFT_ARM_JOINTS[2]: 0.0,
-                          self.LEFT_ARM_JOINTS[3]: 0.5, self.LEFT_ARM_JOINTS[4]: 0.0, self.LEFT_ARM_JOINTS[5]: 1.1,
+        jointPositions = {self.LEFT_ARM_JOINTS[0]: 0.0, self.LEFT_ARM_JOINTS[1]: -0.77, self.LEFT_ARM_JOINTS[2]: 0.0,
+                          self.LEFT_ARM_JOINTS[3]: 1.1, self.LEFT_ARM_JOINTS[4]: 0.0, self.LEFT_ARM_JOINTS[5]: 0.82,
                           self.LEFT_ARM_JOINTS[6]: 0.8}
         while True:
             self.publishingRate.publish(self.rate) # Set publishing rate
