@@ -106,6 +106,14 @@ class Pusher(object):
                 rospy.loginfo(ARM + " arm moved to safety position")
                 break
 
+    # def __waitForLimbToMoveToPosition(self, ARM, jointPositions, msg):
+    #     ARMS = ["left", "right"]
+    #     nInPosition = self.__getNumberOfArmAndGripperJointsInPosition(ARM, jointPositions)
+    #     if(    )
+    #     if(nInPosition == len(self.LEFT_ARM_JOINTS)):
+    #         rospy.loginfo(ARM + " arm moved to safety position")
+    #         break
+
 
     def __moveRightArmToSafetyPosition(self, rate):
         # Set right arm into a pose that is deemed to be relatively safe
@@ -221,20 +229,18 @@ class Pusher(object):
         nInPosition = 0 # Number of joints that are in position
         ARMS = ["left", "right"]
 
-        for iter in range(0, len(ARMS)):
-            if(ARM == ARMS[iter]):
-                if(ARM == ARMS[0]):
-                    for iter in range(0, len(self.LEFT_ARM_JOINTS)):
-                        if(self.leftArm.joint_angle(self.LEFT_ARM_JOINTS[iter]) >= (jointPositions[self.LEFT_ARM_JOINTS[iter]] - self.JOINT_PLAY) and
-                           self.leftArm.joint_angle(self.LEFT_ARM_JOINTS[iter]) <= (jointPositions[self.LEFT_ARM_JOINTS[iter]] + self.JOINT_PLAY)):
-                            nInPosition += 1
-                else:
-                    if(ARM == ARMS[1]):
-                        for iter in range(0, len(self.RIGHT_ARM_JOINTS)):
-                            if(self.rightArm.joint_angle(self.RIGHT_ARM_JOINTS[iter]) >= (jointPositions[self.RIGHT_ARM_JOINTS[iter]] - self.JOINT_PLAY) and
-                               self.rightArm.joint_angle(self.RIGHT_ARM_JOINTS[iter]) <= (jointPositions[self.RIGHT_ARM_JOINTS[iter]] + self.JOINT_PLAY)):
-                                nInPosition += 1
-                return nInPosition
+        if(ARM == ARMS[0]):
+            for iter in range(0, len(self.LEFT_ARM_JOINTS)):
+                if(self.leftArm.joint_angle(self.LEFT_ARM_JOINTS[iter]) >= (jointPositions[self.LEFT_ARM_JOINTS[iter]] - self.JOINT_PLAY) and
+                   self.leftArm.joint_angle(self.LEFT_ARM_JOINTS[iter]) <= (jointPositions[self.LEFT_ARM_JOINTS[iter]] + self.JOINT_PLAY)):
+                    nInPosition += 1
+        else:
+            if(ARM == ARMS[1]):
+                for iter in range(0, len(self.RIGHT_ARM_JOINTS)):
+                    if(self.rightArm.joint_angle(self.RIGHT_ARM_JOINTS[iter]) >= (jointPositions[self.RIGHT_ARM_JOINTS[iter]] - self.JOINT_PLAY) and
+                       self.rightArm.joint_angle(self.RIGHT_ARM_JOINTS[iter]) <= (jointPositions[self.RIGHT_ARM_JOINTS[iter]] + self.JOINT_PLAY)):
+                        nInPosition += 1
+        return nInPosition
 
         # We should only reach this point if ARM contains an invalid value, i.e. one that is not in ARMS
         rospy.logerr("Error in  __getNumberOfArmAndGripperJointsInPosition(), invalid value passed via veriable (" + ARM +
