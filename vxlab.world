@@ -1819,54 +1819,23 @@
       <static>1</static>
     </model>
 
-
-    <!-- SUPER BEER CAN PUSHER MODELS START -->
-<!--    <model name="superBeerCanPusherPedestal">
-      <include>
-	<static>true</static>--> <!-- We don't want our pedestal moving around! -->
-<!--	<uri>model://superBeerCanPusherPedestal</uri>
-	<pose> 1.427450 0.157910 0.417233 0 0 0 </pose>
-      </include>
-    </model>
-    <model name="blockButton">
-      <include>
-	<static>false</static>
-	<uri>model://blockButton</uri>
-	<pos> 1.077940 0.378189 0.942319 0 0 0 </pos>
-      </include>
-      </model> -->
-
-
-    
-<!--    <model name="superBeerCanPusherBeerHolder">
+    <!-- Load something for our beer button to sit on. -->
+    <model name="beerPedestal">
       <include>
 	<static>true</static>
-	<uri>model://superBeerCanPusherBeerHolder</uri>
-	<pos> 0.025956 0.163850 0.0 0 0 0 </pos>
+	<uri>model://beerPedestal</uri>
+	<pose> -0.590677 6.026460 0.739853 0 0 0 </pose>
       </include>
-    </model>-->
-    
-<!--    <model name="superBeerCanPusherBeer">
+    </model>
+    <!-- Load our beer can! -->
+    <model name="beer">
       <include>
-	<static>false</static>
-	<uri>model://superBeerCanPusherBeer</uri>
-	<pose> 1.093207 0.251916 0.834466 0 0 0 </pose>-->
-	<!-- 0.839765 -->
-	<!-- <pose> 1.427450 0.157910 0.83850 0 0 0 </pose> -->
-<!--	<pose> 1.427450 0.157910 0.834466 0 0 0 </pose> -->
-	<!-- 1.150010 0.140865 0.839765 -->
-<!--      </include>
-     </model>-->
-<model name="tallBoy">
-  <link name="doorBell_0">
-    <include>      
-      <uri>model://tallBoy</uri>
-      <pose frame=""> 1.207773 0.576771 0.690348 0 0 0 </pose>
-    </include>
-  </link>
-</model>
+	<static>true</static>
+	<uri>model://beer</uri>
+	<pose> -0.591135 5.932420 1.030944 0 0 0 </pose>
+      </include>
+    </model>
 
-    <!-- SUPER BEER CAN PUSHER MODELS START -->
     <state world_name='default'>
       <sim_time>0 0</sim_time>
       <real_time>0 0</real_time>
@@ -2036,28 +2005,6 @@
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
-
-<!--      <model name="tallBoy">
-	<include>
-	  <uri>model://tallBoy</uri>
-	  <pose frame=''> 1.207773 0.576771 0.690348 0 0 0 </pose>
-	  <static>false</static>
-	  <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-	</include>
-      </model> -->
-
-      <model name="tallBoy">
-	<link name="doorBell_0">
-	  <pose frame=""> 1.207773 0.576771 0.690348 0 0 0 </pose>
-	  <static>false</static>
-	  <velocity> 0 0 0 0 -0 0</velocity>
-	  <acceleration> 0 0 0 0 -0 0</acceleration>
-	  <wrench> 0 0 0 0 -0 0</wrench>
-	</link>
-      </model>
-      
       <light name='sun'>
         <pose frame=''>0 0 10 0 -0 0</pose>
       </light>
