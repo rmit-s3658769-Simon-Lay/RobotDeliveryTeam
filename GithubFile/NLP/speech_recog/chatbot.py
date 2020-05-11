@@ -38,8 +38,7 @@ def extract_text_from_mv(name_source):
 
 def inputs_controller():
     input_from_speech = []
-    input_from_speech.append(extract_text_from_mv('source_data/sample_forward.wav'))
-    input_from_speech.append(extract_text_from_mv('source_data/sample_stop.wav'))
+    input_from_speech.append(extract_text_from_mv('source_data/sample_run_sample.wav'))
     input_from_speech.append(extract_text_from_mv('source_data/sample_bye.wav'))
     #input_from_speech = " ".join(input_from_speech)
     #print(input_from_speech)
@@ -86,10 +85,10 @@ def baxter_commands(user_response):
                 return False
             if ('forward' == i):
                 print('moving forward....')
-                os.system("python move-original.py -x 5")
+                os.system("python action_Script/move-original.py -x 5")
             if ('stop' == i):
                 print('stopping.......')
-                os.system("python stop.py")
+                os.system("python action_Script/stop.py")
             if ('slow' == i):
                 print('slowing down.....')
                 ##insert rospy command here
@@ -107,8 +106,9 @@ def baxter_commands(user_response):
             if i == commands[-1]:
                 print("execute the rospy command: python "+run_cmd)
 		#hard coded:
-	        os.system("python move-to-door.py -p")
-		os.system("python beerPusher.py")
+	        os.system("python action_Script/move-to-door.py -p")
+		os.system("python action_Script/beerPusher.py")
+                os.system("python action_Script/waveLikeMade.py")
                 ##insert rospy command here
 
 # Generating response
