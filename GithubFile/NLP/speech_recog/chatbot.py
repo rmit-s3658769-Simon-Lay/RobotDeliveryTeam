@@ -19,11 +19,6 @@ script_dir = "chat_pairs"
 sys.path.append(os.path.abspath(script_dir))
 import rosie_pairs as chatbot
 
-#changes required
-chatbot.rosie_chat()
-
-
-
 def extract_text_from_mv(name_source):
     r = sr.Recognizer()
     from_wav = sr.AudioFile(name_source)
@@ -37,9 +32,9 @@ def extract_text_from_mv(name_source):
         print("Exception: "+str(e))
 
 def inputs_controller():
-    input_from_speech = []
-    input_from_speech.append(extract_text_from_mv('source_data/sample_run_sample.wav'))
-    input_from_speech.append(extract_text_from_mv('source_data/sample_bye.wav'))
+    input_from_speech = ["Hi","I am doing good thanks", "pretty good"]
+   # input_from_speech.append(extract_text_from_mv('source_data/sample_run_sample.wav'))
+   # input_from_speech.append(extract_text_from_mv('source_data/sample_bye.wav'))
     #input_from_speech = " ".join(input_from_speech)
     #print(input_from_speech)
     return input_from_speech
@@ -78,17 +73,16 @@ def baxter_commands(user_response):
     commands = user_response.split(" ")
     run_cmd = '*rospy cmd*'
     run_flag = False
-    print(commands)
     for i in commands:
         if run_flag == False:
             if i not in basic_commands_array:
                 return False
             if ('forward' == i):
                 print('moving forward....')
-                os.system("python action_Script/move-original.py -x 5")
+                os.system("python action_Scripts/move-original.py -x 5")
             if ('stop' == i):
                 print('stopping.......')
-                os.system("python action_Script/stop.py")
+                os.system("python action_Scripts/stop.py")
             if ('slow' == i):
                 print('slowing down.....')
                 ##insert rospy command here
@@ -106,9 +100,9 @@ def baxter_commands(user_response):
             if i == commands[-1]:
                 print("execute the rospy command: python "+run_cmd)
 		#hard coded:
-	        os.system("python action_Script/move-to-door.py -p")
-		os.system("python action_Script/beerPusher.py")
-                os.system("python action_Script/waveLikeMade.py")
+	        os.system("python action_Scripts/move-to-door.py -p")
+		os.system("python action_Scripts/beerPusher.py")
+                os.system("python action_Scripts/waveLikeMade.py")
                 ##insert rospy command here
 
 # Generating response
@@ -184,5 +178,25 @@ def Enable_wav():
             else:
                 print("Rosie: Bye! take care..")  
                 break
-Enable_wav()
+
+def Enable_wav2():
+    print("Therapist\n---------")
+    print("Talk to the program by typing in plain English, using normal upper-")
+    print('and lower-case letters and punctuation.  Enter "quit" when done.')
+    print("=" * 72)
+    print("Hello.  How are you feeling today?")
+    for i in inputs_controller():
+        user_response = str(i)
+        user_response = user_response.lower()
+        #Insert Baxter bot commands#
+        if baxter_commands(user_response) == False:
+            ##Conversational
+            if(user_response!='bye'):
+                print("you said: "+user_response)
+                chatbot.rosie_chat(user_response)
+            else:
+                print("Rosie: Bye! take care..")  
+                break
+
+Enable_wav2()
 
