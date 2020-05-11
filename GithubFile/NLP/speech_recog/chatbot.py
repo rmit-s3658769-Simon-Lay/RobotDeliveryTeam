@@ -10,9 +10,19 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
 from pocketsphinx import LiveSpeech
 import speech_recognition as sr
-#import custom script
 import time
-import os 
+import os
+from nltk.chat.util import Chat
+import os
+import sys
+script_dir = "chat_pairs"
+sys.path.append(os.path.abspath(script_dir))
+import rosie_pairs as chatbot
+
+#changes required
+chatbot.rosie_chat()
+
+
 
 def extract_text_from_mv(name_source):
     r = sr.Recognizer()
