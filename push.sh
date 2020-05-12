@@ -23,7 +23,7 @@
 
 ####### Parameters #########
 privatekey=$1
-location_in_server=/home/robodeliver/baxter-mobility-base-simdemo/rosie/
+location_in_server=/home/robodeliver/baxter-mobility-base-simdemo/rosie/RobotDeliveryTeam
 
 # shh into the robodeliver server
 scp -r -i $privatekey ./GithubFile robodeliver@131.170.250.237:$location_in_server

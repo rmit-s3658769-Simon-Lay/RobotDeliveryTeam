@@ -23,7 +23,7 @@
 
 ####### Parameters #########
 privatekey=$1
-location_in_server=/home/robodeliver/baxter-mobility-base-simdemo/rosie/GithubFile
+location_in_server=/home/robodeliver/baxter-mobility-base-simdemo/rosie/RobotDeliveryTeam/GithubFile
 
 # shh into the robodeliver server
 rm -rf ./GithubFile
