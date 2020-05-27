@@ -13,7 +13,6 @@ import speech_recognition as sr
 import time
 import os
 from nltk.chat.util import Chat
-import os
 import sys
 script_dir = "chat_pairs"
 sys.path.append(os.path.abspath(script_dir))
@@ -53,19 +52,19 @@ def baxter_commands(user_response):
                 return False
             if ('forward' == i):
                 print('moving forward....')
-                os.system("nohup python action_Scripts/move-original.py -x 5 &")
+                os.system("python action_Scripts/move-original.py -x 5")
             if ('stop' == i):
                 print('stopping.......')
-                os.system("nohup python action_Scripts/stop.py &")
+                os.system("python action_Scripts/stop.py")
             if ('slow' == i):
                 print('slowing down.....')
-                os.system("nohup python action_Scripts/slow.py -x 5 &")
+                os.system("python action_Scripts/slow.py -x 5")
             if ('spin' == i):
                 print("spinning........")
-		os.system("nohup python action_Scripts/rotate.py -y 45 &")
+		os.system("python action_Scripts/rotate.py -y 45")
             if ('turn' == i):
                 print("turning.....")
-		os.system("nohup python action_Scripts/rotate.py -y 45 &")
+		os.system("python action_Scripts/rotate.py -y 45")
                 ##insert rospy command here
             if ('execute' == i):
                 run_flag = True
@@ -75,10 +74,10 @@ def baxter_commands(user_response):
             if i == commands[-1]:
                 print("execute the rospy command: python "+run_cmd)
 		#hard coded:
-	        os.system("nohup python action_Scripts/move-to-door.py -p &")
-		os.system("nohup python action_Scripts/beerPusher.py &")
-                os.system("nohup python action_Scripts/waveLikeMade.py &")
-		os.system("sh ../../../../lift-arms &")
+	        os.system("python action_Scripts/move-to-door.py -p")
+		os.system("python action_Scripts/beerPusher.py")
+                os.system("python action_Scripts/waveLikeMade.py")
+		os.system("sh ../../../../lift-arms")
                 ##insert rospy command here
 
 #implement script controls. e.g: rosie execute script move
